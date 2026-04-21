@@ -1,0 +1,66 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import EventCard from "@/components/EventCard.astro";
+import { getEvents } from "@/lib/events";
+
+const events = getEvents();
+const upcomingEvents = events.filter(
+  (e) => new Date(e.date) >= new Date(new Date().toDateString())
+);
+const pastEvents = events.filter(
+  (e) => new Date(e.date) < new Date(new Date().toDateString())
+);
+---
+
+<Layout title="Evenementen in Wageningen">
+  <header class="bg-emerald-700 text-white py-12 px-4 text-center">
+    <h1 class="text-4xl font-extrabold tracking-tight">
+      Evenementen in Wageningen
+    </h1>
+    <p class="mt-2 text-emerald-200 text-lg">
+      Ontdek wat er te doen is in onze stad
+    </p>
+  </header>
+
+  <main class="mx-auto max-w-5xl px-4 py-10">
+    {
+      events.length === 0 ? (
+        <p class="text-center text-gray-500 text-lg py-20">
+          Geen evenementen gepland. Kom snel terug!
+        </p>
+      ) : (
+        <>
+          {upcomingEvents.length > 0 && (
+            <section>
+              <h2 class="mb-6 text-2xl font-bold text-gray-800">
+                Aankomende evenementen
+              </h2>
+              <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                {upcomingEvents.map((event) => (
+                  <EventCard event={event} />
+                ))}
+              </div>
+            </section>
+          )}
+
+          {pastEvents.length > 0 && (
+            <section class="mt-14">
+              <h2 class="mb-6 text-2xl font-bold text-gray-400">
+                Afgelopen evenementen
+              </h2>
+              <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 opacity-60">
+                {pastEvents.map((event) => (
+                  <EventCard event={event} />
+                ))}
+              </div>
+            </section>
+          )}
+        </>
+      )
+    }
+  </main>
+
+  <footer class="mt-10 border-t border-gray-200 py-6 text-center text-sm text-gray-400">
+    © {new Date().getFullYear()} Evenementen Wageningen
+  </footer>
+</Layout>
