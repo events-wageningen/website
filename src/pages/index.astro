@@ -11,11 +11,11 @@ const pastEvents = events.filter((e) => new Date(e.startDate) < now);
 ---
 
 <Layout title="Events in Wageningen">
-  <header class="bg-white">
+  <header class="bg-white flex items-center justify-center" style="height:160px">
     <img
       src={`${import.meta.env.BASE_URL}logo.jpg`}
       alt="Events Wageningen"
-      class="w-full block"
+      class="h-full w-auto object-contain"
     />
   </header>
 
