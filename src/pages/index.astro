@@ -29,7 +29,7 @@ const pastEvents = events.filter((e) => new Date(e.startDate) < now);
         <>
           {upcomingEvents.length > 0 && (
             <section>
-              <h2 class="mb-6 text-2xl font-bold text-gray-800">
+              <h2 class="mb-6 text-2xl font-bold" style="color:#D1783B">
                 Upcoming events
               </h2>
               <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -42,7 +42,7 @@ const pastEvents = events.filter((e) => new Date(e.startDate) < now);
 
           {pastEvents.length > 0 && (
             <section class="mt-14">
-              <h2 class="mb-6 text-2xl font-bold text-gray-400">
+              <h2 class="mb-6 text-2xl font-bold" style="color:#D1783B">
                 Past events
               </h2>
               <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 opacity-60">
