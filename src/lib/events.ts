@@ -45,8 +45,8 @@ export async function getEvents(): Promise<Event[]> {
     url: (row.url as string) ?? "",
     price: row.price as Event["price"],
     status: row.status as Event["status"],
-    lat: row.lat as number | undefined,
-    lon: row.lon as number | undefined,
+    ...(row.lat != null ? { lat: row.lat as number } : {}),
+    ...(row.lon != null ? { lon: row.lon as number } : {}),
   }));
 }
 
