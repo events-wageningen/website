@@ -73,51 +73,174 @@ const pastEvents = events.filter((e) => new Date(e.startDate) < now);
   <footer class="mt-10 border-t border-gray-200 py-6 text-center text-sm text-gray-400">
     © {new Date().getFullYear()} Events Wageningen
   </footer>
+
+  <!-- Event detail modal -->
+  <div id="event-modal" style="display:none" class="fixed inset-0 z-50 overflow-y-auto">
+    <div id="modal-overlay" class="fixed inset-0" style="background:rgba(0,0,0,0.75)"></div>
+    <div class="relative flex min-h-full items-start justify-center p-6 sm:p-14">
+      <div id="modal-panel" class="relative w-full max-w-2xl rounded-2xl bg-white shadow-2xl overflow-hidden">
+        <button
+          id="modal-close"
+          class="absolute right-3 top-3 z-10 flex h-8 w-8 items-center justify-center rounded-full text-white text-2xl font-bold leading-none"
+          style="background:rgba(0,0,0,0.45)"
+          aria-label="Close"
+        >&times;</button>
+        <img id="modal-img" src="" alt="" class="w-full h-auto block" style="min-height:4rem;background:#f3f4f6" />
+        <div class="p-6 flex flex-col gap-4">
+          <div class="flex items-center justify-between gap-2 flex-wrap">
+            <time id="modal-time" class="text-sm font-semibold uppercase tracking-wide text-emerald-600"></time>
+            <span id="modal-price" class="rounded-full px-2.5 py-0.5 text-xs font-semibold"></span>
+          </div>
+          <h2 id="modal-name" class="text-2xl font-bold text-gray-900"></h2>
+          <p id="modal-location" class="text-sm text-gray-500"></p>
+          <p id="modal-desc" class="text-sm text-gray-700 whitespace-pre-line"></p>
+          <div id="modal-cats" class="flex flex-wrap gap-1.5"></div>
+          <div id="modal-tags" class="flex flex-wrap gap-1"></div>
+          <div class="flex justify-end pt-2">
+            <a
+              id="modal-link"
+              href="#"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-block rounded-full px-4 py-1.5 text-sm font-semibold text-white transition hover:opacity-90"
+              style="background-color:#D1783B;display:none"
+            >Link to event organizers →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </Layout>
 
-<script>
-  const buttons = document.querySelectorAll<HTMLButtonElement>(".filter-btn");
-  const cards = document.querySelectorAll<HTMLElement>("article[data-categories]");
-  const sectionUpcoming = document.getElementById("section-upcoming");
-  const sectionPast = document.getElementById("section-past");
-
-  const selected = new Set<string>();
+<script define:vars={{ eventsData: events, categoryMapData: categoryMap, siteBaseUrl: import.meta.env.BASE_URL }}>
+  // ── Category filter ────────────────────────────────────────────────────────
+  const buttons = document.querySelectorAll('.filter-btn');
+  const cards = document.querySelectorAll('article[data-categories]');
+  const sectionUpcoming = document.getElementById('section-upcoming');
+  const sectionPast = document.getElementById('section-past');
+  const selected = new Set();
 
   function applyFilter() {
     cards.forEach((card) => {
-      if (selected.size === 0) {
-        card.style.display = "";
-        return;
-      }
-      const cats = (card.dataset.categories ?? "").split(",").filter(Boolean);
-      const match = cats.some((c) => selected.has(c));
-      card.style.display = match ? "" : "none";
+      if (selected.size === 0) { card.style.display = ''; return; }
+      const cats = (card.dataset.categories ?? '').split(',').filter(Boolean);
+      card.style.display = cats.some((c) => selected.has(c)) ? '' : 'none';
     });
-
-    // Hide section headings when all their cards are hidden
     [sectionUpcoming, sectionPast].forEach((section) => {
       if (!section) return;
-      const visible = [...section.querySelectorAll<HTMLElement>("article[data-categories]")]
-        .some((c) => c.style.display !== "none");
-      (section as HTMLElement).style.display = visible || selected.size === 0 ? "" : "none";
+      const visible = [...section.querySelectorAll('article[data-categories]')]
+        .some((c) => c.style.display !== 'none');
+      section.style.display = visible || selected.size === 0 ? '' : 'none';
     });
   }
 
   buttons.forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const cat = btn.dataset.cat!;
+    btn.addEventListener('click', () => {
+      const cat = btn.dataset.cat;
       if (selected.has(cat)) {
         selected.delete(cat);
-        btn.style.backgroundColor = "";
-        btn.style.color = "";
-        btn.style.borderColor = "";
+        btn.style.backgroundColor = '';
+        btn.style.color = '';
+        btn.style.borderColor = '';
       } else {
         selected.add(cat);
-        btn.style.backgroundColor = "#D1783B";
-        btn.style.color = "#fff";
-        btn.style.borderColor = "#D1783B";
+        btn.style.backgroundColor = '#D1783B';
+        btn.style.color = '#fff';
+        btn.style.borderColor = '#D1783B';
       }
       applyFilter();
     });
   });
+
+  // ── Event detail modal ─────────────────────────────────────────────────────
+  const modal       = document.getElementById('event-modal');
+  const modalOverlay = document.getElementById('modal-overlay');
+  const modalClose  = document.getElementById('modal-close');
+  const modalImg    = document.getElementById('modal-img');
+  const modalTime   = document.getElementById('modal-time');
+  const modalPrice  = document.getElementById('modal-price');
+  const modalName   = document.getElementById('modal-name');
+  const modalLoc    = document.getElementById('modal-location');
+  const modalDesc   = document.getElementById('modal-desc');
+  const modalCats   = document.getElementById('modal-cats');
+  const modalTags   = document.getElementById('modal-tags');
+  const modalLink   = document.getElementById('modal-link');
+
+  const PRICE_LABELS = { free: 'Free', paid: 'Paid', donation: 'Donation' };
+  const PRICE_COLORS = {
+    free: 'bg-emerald-100 text-emerald-700',
+    paid: 'bg-blue-100 text-blue-700',
+    donation: 'bg-amber-100 text-amber-700',
+  };
+
+  function fmtDate(iso) {
+    return new Date(iso).toLocaleDateString('en-GB', {
+      weekday: 'short', day: 'numeric', month: 'long', year: 'numeric',
+    });
+  }
+  function fmtTime(iso) {
+    return new Date(iso).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  function openModal(ev) {
+    modalImg.src = siteBaseUrl + 'images/' + ev.id + '.jpg';
+    modalImg.alt = ev.name;
+    modalImg.onerror = () => { modalImg.onerror = null; modalImg.src = siteBaseUrl + 'default.jpg'; };
+
+    modalTime.textContent = fmtDate(ev.startDate) + ' · ' + fmtTime(ev.startDate);
+    modalPrice.textContent = PRICE_LABELS[ev.price] || ev.price;
+    modalPrice.className = 'rounded-full px-2.5 py-0.5 text-xs font-semibold ' + (PRICE_COLORS[ev.price] || '');
+
+    modalName.textContent = ev.name;
+    modalLoc.textContent  = '\uD83D\uDCCD ' + ev.location.name + ', ' + ev.location.city;
+
+    modalDesc.textContent  = ev.description || '';
+    modalDesc.style.display = ev.description ? '' : 'none';
+
+    modalCats.innerHTML = '';
+    (ev.category || []).forEach((cat) => {
+      const info = categoryMapData[cat];
+      const span = document.createElement('span');
+      span.className = 'rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium capitalize text-gray-600';
+      span.textContent = info ? info.emoji + '\u00A0' + info.label : cat;
+      modalCats.appendChild(span);
+    });
+
+    modalTags.innerHTML = '';
+    (ev.tags || []).forEach((tag) => {
+      const span = document.createElement('span');
+      span.className = 'rounded-full bg-orange-50 px-2 py-0.5 text-xs text-orange-600';
+      span.textContent = '#' + tag;
+      modalTags.appendChild(span);
+    });
+
+    if (ev.url) {
+      modalLink.href = ev.url;
+      modalLink.style.display = '';
+    } else {
+      modalLink.style.display = 'none';
+    }
+
+    modal.style.display = '';
+    modal.scrollTop = 0;
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeModal() {
+    modal.style.display = 'none';
+    document.body.style.overflow = '';
+    setTimeout(() => { modalImg.src = ''; }, 200);
+  }
+
+  document.querySelectorAll('.event-card').forEach((card) => {
+    card.addEventListener('click', (e) => {
+      if (e.target.closest('[data-no-modal]')) return;
+      const ev = eventsData.find((x) => x.id === card.dataset.eventId);
+      if (ev) openModal(ev);
+    });
+  });
+
+  modalClose.addEventListener('click', closeModal);
+  modalOverlay.addEventListener('click', closeModal);
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
 </script>
