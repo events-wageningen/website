@@ -55,7 +55,7 @@ const pastEvents = events.filter((e) => new Date(e.startDate) < now);
         </div>
       )}
 
-      <div class={categoriesList.length > 0 ? "border-t border-gray-100 pt-5" : ""}>
+      <div class="border-t border-gray-100 pt-5">
         <p class="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">Starting date</p>
         <div class="flex flex-wrap items-center gap-4">
           <div class="flex items-center gap-2">
@@ -74,13 +74,30 @@ const pastEvents = events.filter((e) => new Date(e.startDate) < now);
               class="rounded-lg border border-gray-300 px-3 py-1.5 text-sm text-gray-700 focus:border-orange-400 focus:outline-none"
             />
           </div>
-          <button
-            id="filter-clear"
-            class="rounded-full border border-gray-200 px-3 py-1.5 text-sm text-gray-500 transition hover:border-orange-300 hover:text-orange-500"
-          >
-            Clear all
-          </button>
         </div>
+      </div>
+
+      <div class="border-t border-gray-100 pt-5">
+        <p class="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">City</p>
+        <div class="flex flex-wrap gap-2" id="city-filters">
+          {["Wageningen", "Droevendaal", "Bennekom", "Renkum", "Ede", "Rhenen"].map((city) => (
+            <button
+              data-city={city}
+              class="city-btn rounded-full border border-gray-300 bg-white px-3 py-1 text-sm font-medium text-gray-600 transition hover:border-orange-400 hover:text-orange-600"
+            >
+              {city}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div class="flex justify-end pt-5">
+        <button
+          id="filter-clear"
+          class="rounded-full border border-gray-200 px-4 py-1.5 text-sm text-gray-500 transition hover:border-orange-300 hover:text-orange-500"
+        >
+          Clear all
+        </button>
       </div>
     </div>
 
@@ -177,6 +194,7 @@ const pastEvents = events.filter((e) => new Date(e.startDate) < now);
 
   // ── Filters: shared state ──────────────────────────────────────────────────
   const filterBtns    = document.querySelectorAll('.filter-btn');
+  const cityBtns      = document.querySelectorAll('.city-btn');
   const cards         = document.querySelectorAll('article[data-categories]');
   const sectionUpcoming = document.getElementById('section-upcoming');
   const sectionPast   = document.getElementById('section-past');
@@ -184,6 +202,7 @@ const pastEvents = events.filter((e) => new Date(e.startDate) < now);
   const filterTo      = document.getElementById('filter-to');
   const filterClear   = document.getElementById('filter-clear');
   const selectedCats  = new Set();
+  const selectedCities = new Set();
 
   function applyFilter() {
     const from = filterFrom.value ? new Date(filterFrom.value) : null;
@@ -195,12 +214,14 @@ const pastEvents = events.filter((e) => new Date(e.startDate) < now);
 
       const ev = eventsData.find((x) => x.id === card.dataset.eventId);
       let dateOk = true;
+      let cityOk = true;
       if (ev) {
         const start = new Date(ev.startDate);
         if (from && start < from) dateOk = false;
         if (to   && start > to)   dateOk = false;
+        if (selectedCities.size > 0 && !selectedCities.has(ev.location.city)) cityOk = false;
       }
-      card.style.display = catOk && dateOk ? '' : 'none';
+      card.style.display = catOk && dateOk && cityOk ? '' : 'none';
     });
 
     [sectionUpcoming, sectionPast].forEach((section) => {
@@ -211,20 +232,31 @@ const pastEvents = events.filter((e) => new Date(e.startDate) < now);
     });
   }
 
+  function activateBtn(btn) {
+    btn.style.backgroundColor = '#D1783B';
+    btn.style.color = '#fff';
+    btn.style.borderColor = '#D1783B';
+  }
+  function deactivateBtn(btn) {
+    btn.style.backgroundColor = '';
+    btn.style.color = '';
+    btn.style.borderColor = '';
+  }
+
   filterBtns.forEach((btn) => {
     btn.addEventListener('click', () => {
       const cat = btn.dataset.cat;
-      if (selectedCats.has(cat)) {
-        selectedCats.delete(cat);
-        btn.style.backgroundColor = '';
-        btn.style.color = '';
-        btn.style.borderColor = '';
-      } else {
-        selectedCats.add(cat);
-        btn.style.backgroundColor = '#D1783B';
-        btn.style.color = '#fff';
-        btn.style.borderColor = '#D1783B';
-      }
+      if (selectedCats.has(cat)) { selectedCats.delete(cat); deactivateBtn(btn); }
+      else                        { selectedCats.add(cat);    activateBtn(btn); }
+      applyFilter();
+    });
+  });
+
+  cityBtns.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const city = btn.dataset.city;
+      if (selectedCities.has(city)) { selectedCities.delete(city); deactivateBtn(btn); }
+      else                           { selectedCities.add(city);    activateBtn(btn); }
       applyFilter();
     });
   });
@@ -234,11 +266,9 @@ const pastEvents = events.filter((e) => new Date(e.startDate) < now);
 
   filterClear.addEventListener('click', () => {
     selectedCats.clear();
-    filterBtns.forEach((btn) => {
-      btn.style.backgroundColor = '';
-      btn.style.color = '';
-      btn.style.borderColor = '';
-    });
+    selectedCities.clear();
+    filterBtns.forEach(deactivateBtn);
+    cityBtns.forEach(deactivateBtn);
     filterFrom.value = '';
     filterTo.value = '';
     applyFilter();
