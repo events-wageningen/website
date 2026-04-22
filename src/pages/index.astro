@@ -1,22 +1,22 @@
 ---
 import Layout from "@/layouts/Layout.astro";
 import EventCard from "@/components/EventCard.astro";
-import { getEvents } from "@/lib/events";
+import { getEvents, getCategories, type Category } from "@/lib/events";
 
-const events = await getEvents();
+const [events, categoriesList] = await Promise.all([getEvents(), getCategories()]);
+const categoryMap = Object.fromEntries(categoriesList.map((c) => [c.id, c])) as Record<string, Category>;
 const now = new Date();
 const upcomingEvents = events.filter((e) => new Date(e.startDate) >= now);
 const pastEvents = events.filter((e) => new Date(e.startDate) < now);
 ---
 
 <Layout title="Events in Wageningen">
-  <header class="bg-emerald-700 text-white py-12 px-4 text-center">
-    <h1 class="text-4xl font-extrabold tracking-tight">
-      Events in Wageningen
-    </h1>
-    <p class="mt-2 text-emerald-200 text-lg">
-      Discover what's happening in our city
-    </p>
+  <header class="bg-white">
+    <img
+      src={`${import.meta.env.BASE_URL}logo.jpg`}
+      alt="Events Wageningen"
+      class="w-full block"
+    />
   </header>
 
   <main class="mx-auto max-w-5xl px-4 py-10">
@@ -34,7 +34,7 @@ const pastEvents = events.filter((e) => new Date(e.startDate) < now);
               </h2>
               <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 {upcomingEvents.map((event) => (
-                  <EventCard event={event} />
+                  <EventCard event={event} categoryMap={categoryMap} />
                 ))}
               </div>
             </section>
@@ -47,7 +47,7 @@ const pastEvents = events.filter((e) => new Date(e.startDate) < now);
               </h2>
               <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 opacity-60">
                 {pastEvents.map((event) => (
-                  <EventCard event={event} />
+                  <EventCard event={event} categoryMap={categoryMap} />
                 ))}
               </div>
             </section>

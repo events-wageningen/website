@@ -1,11 +1,12 @@
 ---
 import type { Event } from "@/types/event";
-import { formatDate, formatTime } from "@/lib/events";
+import { formatDate, formatTime, type Category } from "@/lib/events";
 
 export interface Props {
   event: Event;
+  categoryMap?: Record<string, Category>;
 }
-const { event } = Astro.props;
+const { event, categoryMap = {} } = Astro.props;
 
 const priceLabel: Record<Event["price"], string> = {
   free: "Free",
@@ -78,9 +79,23 @@ const priceColor: Record<Event["price"], string> = {
   <!-- Categories -->
   {event.category.length > 0 && (
     <div class="flex flex-wrap gap-1.5">
-      {event.category.map((cat) => (
-        <span class="rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium capitalize text-gray-600">
-          {cat}
+      {event.category.map((cat) => {
+        const info = categoryMap[cat];
+        return (
+          <span class="rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium capitalize text-gray-600">
+            {info ? `${info.emoji} ${info.label}` : cat}
+          </span>
+        );
+      })}
+    </div>
+  )}
+
+  <!-- Tags -->
+  {event.tags && event.tags.length > 0 && (
+    <div class="flex flex-wrap gap-1">
+      {event.tags.map((tag) => (
+        <span class="rounded-full bg-orange-50 px-2 py-0.5 text-xs text-orange-600">
+          #{tag}
         </span>
       ))}
     </div>

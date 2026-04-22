@@ -6,6 +6,21 @@ const supabase = createClient(
   import.meta.env.PUBLIC_SUPABASE_ANON_KEY
 );
 
+export interface Category {
+  id: string;
+  label: string;
+  emoji: string;
+}
+
+export async function getCategories(): Promise<Category[]> {
+  const { data, error } = await supabase
+    .from("categories")
+    .select("id, label, emoji")
+    .order("label");
+  if (error) throw new Error(error.message);
+  return data ?? [];
+}
+
 export async function getEvents(): Promise<Event[]> {
   const { data, error } = await supabase
     .from("events")
