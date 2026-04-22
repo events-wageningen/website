@@ -1,22 +1,22 @@
-name: Deploy to GitHub Pages
+name: Deploy Staging
 
 on:
   push:
     branches:
-      - main
+      - staging
   workflow_dispatch:
 
 permissions:
   contents: write
 
-# Serialize deploys so main and staging never race on the gh-pages branch
+# Same concurrency group as production — prevents gh-pages branch race
 concurrency:
   group: gh-pages
   cancel-in-progress: false
 
 jobs:
   build-and-deploy:
-    name: Build and Deploy
+    name: Build and Deploy Staging
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -31,15 +31,17 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build site
+      - name: Build site (staging)
         run: npm run build
         env:
+          ASTRO_BASE: /staging
           PUBLIC_SUPABASE_URL: ${{ secrets.PUBLIC_SUPABASE_URL }}
           PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.PUBLIC_SUPABASE_ANON_KEY }}
 
-      - name: Deploy to GitHub Pages
+      - name: Deploy to GitHub Pages (staging subfolder)
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist
+          destination_dir: staging
           keep_files: true

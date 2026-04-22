@@ -1,11 +1,36 @@
-import type { Event, EventsFile } from "@/types/event";
-import eventsData from "../data/events.json";
+import { createClient } from "@supabase/supabase-js";
+import type { Event } from "@/types/event";
 
-export function getEvents(): Event[] {
-  const data = eventsData as EventsFile;
-  return data.events.sort(
-    (a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
-  );
+const supabase = createClient(
+  import.meta.env.PUBLIC_SUPABASE_URL,
+  import.meta.env.PUBLIC_SUPABASE_ANON_KEY
+);
+
+export async function getEvents(): Promise<Event[]> {
+  const { data, error } = await supabase
+    .from("events")
+    .select("*")
+    .order("start_date", { ascending: true });
+
+  if (error) throw new Error(error.message);
+
+  return (data ?? []).map((row) => ({
+    id: row.id as string,
+    name: row.name as string,
+    slug: row.slug as string,
+    description: (row.description as string) ?? "",
+    startDate: row.start_date as string,
+    endDate: row.end_date as string,
+    location: {
+      name: row.location_name as string,
+      city: row.location_city as string,
+    },
+    category: row.category as Event["category"],
+    tags: (row.tags as string[]) ?? [],
+    url: (row.url as string) ?? "",
+    price: row.price as Event["price"],
+    status: row.status as Event["status"],
+  }));
 }
 
 export function formatDate(isoDate: string): string {
