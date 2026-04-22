@@ -22,5 +22,6 @@ pnpm-debug.log*
 # macOS-specific files
 .DS_Store
 
-# Telegram bot
+# External repos
 tbot/
+db-schemas/
