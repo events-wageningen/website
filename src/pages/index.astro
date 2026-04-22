@@ -20,18 +20,69 @@ const pastEvents = events.filter((e) => new Date(e.startDate) < now);
   </header>
 
   <main class="mx-auto max-w-5xl px-4 py-10">
-    {categoriesList.length > 0 && (
-      <div class="mb-8 flex flex-wrap gap-2" id="category-filters">
-        {categoriesList.map((cat) => (
+
+    <!-- Filter toggle tab -->
+    <div class="mb-4 flex justify-center">
+      <button
+        id="filter-toggle"
+        class="flex items-center gap-2 rounded-full border border-gray-300 bg-white px-10 py-2.5 text-sm font-semibold text-gray-700 shadow-sm transition hover:border-orange-400 hover:text-orange-600"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <line x1="4" y1="6" x2="20" y2="6"/>
+          <line x1="8" y1="12" x2="16" y2="12"/>
+          <line x1="11" y1="18" x2="13" y2="18"/>
+        </svg>
+        Filters
+      </button>
+    </div>
+
+    <!-- Filter panel (hidden by default) -->
+    <div id="filter-panel" style="display:none" class="mb-8 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+
+      {categoriesList.length > 0 && (
+        <div class="mb-5">
+          <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400">Categories</p>
+          <div class="flex flex-wrap gap-2">
+            {categoriesList.map((cat) => (
+              <button
+                data-cat={cat.id}
+                class="filter-btn rounded-full border border-gray-300 bg-white px-3 py-1 text-sm font-medium text-gray-600 transition hover:border-orange-400 hover:text-orange-600"
+              >
+                {cat.emoji} {cat.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div class={categoriesList.length > 0 ? "border-t border-gray-100 pt-5" : ""}>
+        <p class="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">Starting date</p>
+        <div class="flex flex-wrap items-center gap-4">
+          <div class="flex items-center gap-2">
+            <label for="filter-from" class="text-sm text-gray-600 whitespace-nowrap">From</label>
+            <input
+              type="date"
+              id="filter-from"
+              class="rounded-lg border border-gray-300 px-3 py-1.5 text-sm text-gray-700 focus:border-orange-400 focus:outline-none"
+            />
+          </div>
+          <div class="flex items-center gap-2">
+            <label for="filter-to" class="text-sm text-gray-600 whitespace-nowrap">To</label>
+            <input
+              type="date"
+              id="filter-to"
+              class="rounded-lg border border-gray-300 px-3 py-1.5 text-sm text-gray-700 focus:border-orange-400 focus:outline-none"
+            />
+          </div>
           <button
-            data-cat={cat.id}
-            class="filter-btn rounded-full border border-gray-300 bg-white px-3 py-1 text-sm font-medium text-gray-600 transition hover:border-orange-400 hover:text-orange-600"
+            id="filter-clear"
+            class="rounded-full border border-gray-200 px-3 py-1.5 text-sm text-gray-500 transition hover:border-orange-300 hover:text-orange-500"
           >
-            {cat.emoji} {cat.label}
+            Clear all
           </button>
-        ))}
+        </div>
       </div>
-    )}
+    </div>
 
     {
       events.length === 0 ? (
@@ -113,37 +164,63 @@ const pastEvents = events.filter((e) => new Date(e.startDate) < now);
 </Layout>
 
 <script define:vars={{ eventsData: events, categoryMapData: categoryMap, siteBaseUrl: import.meta.env.BASE_URL }}>
-  // ── Category filter ────────────────────────────────────────────────────────
-  const buttons = document.querySelectorAll('.filter-btn');
-  const cards = document.querySelectorAll('article[data-categories]');
+  // ── Filter panel toggle ────────────────────────────────────────────────────
+  const filterToggle = document.getElementById('filter-toggle');
+  const filterPanel  = document.getElementById('filter-panel');
+  filterToggle.addEventListener('click', () => {
+    const open = filterPanel.style.display !== 'none';
+    filterPanel.style.display = open ? 'none' : '';
+    filterToggle.style.backgroundColor = open ? '' : '#D1783B';
+    filterToggle.style.color           = open ? '' : '#fff';
+    filterToggle.style.borderColor     = open ? '' : '#D1783B';
+  });
+
+  // ── Filters: shared state ──────────────────────────────────────────────────
+  const filterBtns    = document.querySelectorAll('.filter-btn');
+  const cards         = document.querySelectorAll('article[data-categories]');
   const sectionUpcoming = document.getElementById('section-upcoming');
-  const sectionPast = document.getElementById('section-past');
-  const selected = new Set();
+  const sectionPast   = document.getElementById('section-past');
+  const filterFrom    = document.getElementById('filter-from');
+  const filterTo      = document.getElementById('filter-to');
+  const filterClear   = document.getElementById('filter-clear');
+  const selectedCats  = new Set();
 
   function applyFilter() {
+    const from = filterFrom.value ? new Date(filterFrom.value) : null;
+    const to   = filterTo.value   ? new Date(filterTo.value + 'T23:59:59') : null;
+
     cards.forEach((card) => {
-      if (selected.size === 0) { card.style.display = ''; return; }
-      const cats = (card.dataset.categories ?? '').split(',').filter(Boolean);
-      card.style.display = cats.some((c) => selected.has(c)) ? '' : 'none';
+      const catOk = selectedCats.size === 0 ||
+        (card.dataset.categories ?? '').split(',').filter(Boolean).some((c) => selectedCats.has(c));
+
+      const ev = eventsData.find((x) => x.id === card.dataset.eventId);
+      let dateOk = true;
+      if (ev) {
+        const start = new Date(ev.startDate);
+        if (from && start < from) dateOk = false;
+        if (to   && start > to)   dateOk = false;
+      }
+      card.style.display = catOk && dateOk ? '' : 'none';
     });
+
     [sectionUpcoming, sectionPast].forEach((section) => {
       if (!section) return;
       const visible = [...section.querySelectorAll('article[data-categories]')]
         .some((c) => c.style.display !== 'none');
-      section.style.display = visible || selected.size === 0 ? '' : 'none';
+      section.style.display = visible ? '' : 'none';
     });
   }
 
-  buttons.forEach((btn) => {
+  filterBtns.forEach((btn) => {
     btn.addEventListener('click', () => {
       const cat = btn.dataset.cat;
-      if (selected.has(cat)) {
-        selected.delete(cat);
+      if (selectedCats.has(cat)) {
+        selectedCats.delete(cat);
         btn.style.backgroundColor = '';
         btn.style.color = '';
         btn.style.borderColor = '';
       } else {
-        selected.add(cat);
+        selectedCats.add(cat);
         btn.style.backgroundColor = '#D1783B';
         btn.style.color = '#fff';
         btn.style.borderColor = '#D1783B';
@@ -152,19 +229,33 @@ const pastEvents = events.filter((e) => new Date(e.startDate) < now);
     });
   });
 
+  filterFrom.addEventListener('change', applyFilter);
+  filterTo.addEventListener('change', applyFilter);
+
+  filterClear.addEventListener('click', () => {
+    selectedCats.clear();
+    filterBtns.forEach((btn) => {
+      btn.style.backgroundColor = '';
+      btn.style.color = '';
+      btn.style.borderColor = '';
+    });
+    filterFrom.value = '';
+    filterTo.value = '';
+    applyFilter();
+  });
+
   // ── Event detail modal ─────────────────────────────────────────────────────
-  const modal       = document.getElementById('event-modal');
-  const modalOverlay = document.getElementById('modal-overlay');
-  const modalClose  = document.getElementById('modal-close');
-  const modalImg    = document.getElementById('modal-img');
-  const modalTime   = document.getElementById('modal-time');
-  const modalPrice  = document.getElementById('modal-price');
-  const modalName   = document.getElementById('modal-name');
-  const modalLoc    = document.getElementById('modal-location');
-  const modalDesc   = document.getElementById('modal-desc');
-  const modalCats   = document.getElementById('modal-cats');
-  const modalTags   = document.getElementById('modal-tags');
-  const modalLink   = document.getElementById('modal-link');
+  const modal      = document.getElementById('event-modal');
+  const modalClose = document.getElementById('modal-close');
+  const modalImg   = document.getElementById('modal-img');
+  const modalTime  = document.getElementById('modal-time');
+  const modalPrice = document.getElementById('modal-price');
+  const modalName  = document.getElementById('modal-name');
+  const modalLoc   = document.getElementById('modal-location');
+  const modalDesc  = document.getElementById('modal-desc');
+  const modalCats  = document.getElementById('modal-cats');
+  const modalTags  = document.getElementById('modal-tags');
+  const modalLink  = document.getElementById('modal-link');
 
   const PRICE_LABELS = { free: 'Free', paid: 'Paid', donation: 'Donation' };
   const PRICE_COLORS = {
@@ -187,14 +278,14 @@ const pastEvents = events.filter((e) => new Date(e.startDate) < now);
     modalImg.alt = ev.name;
     modalImg.onerror = () => { modalImg.onerror = null; modalImg.src = siteBaseUrl + 'default.jpg'; };
 
-    modalTime.textContent = fmtDate(ev.startDate) + ' · ' + fmtTime(ev.startDate);
+    modalTime.textContent = fmtDate(ev.startDate) + ' \u00b7 ' + fmtTime(ev.startDate);
     modalPrice.textContent = PRICE_LABELS[ev.price] || ev.price;
     modalPrice.className = 'rounded-full px-2.5 py-0.5 text-xs font-semibold ' + (PRICE_COLORS[ev.price] || '');
 
     modalName.textContent = ev.name;
     modalLoc.textContent  = '\uD83D\uDCCD ' + ev.location.name + ', ' + ev.location.city;
 
-    modalDesc.textContent  = ev.description || '';
+    modalDesc.textContent   = ev.description || '';
     modalDesc.style.display = ev.description ? '' : 'none';
 
     modalCats.innerHTML = '';
@@ -241,6 +332,9 @@ const pastEvents = events.filter((e) => new Date(e.startDate) < now);
   });
 
   modalClose.addEventListener('click', closeModal);
-  modalOverlay.addEventListener('click', closeModal);
+  // Close when clicking the darkened area outside the panel
+  modal.addEventListener('click', (e) => {
+    if (!e.target.closest('#modal-panel')) closeModal();
+  });
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
 </script>
