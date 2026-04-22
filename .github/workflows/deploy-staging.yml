@@ -34,7 +34,7 @@ jobs:
       - name: Build site (staging)
         run: npm run build
         env:
-          ASTRO_BASE: /staging
+          ASTRO_BASE: /staging/
           PUBLIC_SUPABASE_URL: ${{ secrets.PUBLIC_SUPABASE_URL }}
           PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.PUBLIC_SUPABASE_ANON_KEY }}
 
