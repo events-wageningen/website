@@ -33,12 +33,8 @@ export interface Event {
   location: EventLocation;
   category: EventCategory[];
   tags: string[];
-  image: string;
   url: string;
   price: EventPrice;
   status: EventStatus;
 }
 
-export interface EventsFile {
-  events: Event[];
-}

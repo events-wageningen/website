@@ -3,7 +3,7 @@ import Layout from "@/layouts/Layout.astro";
 import EventCard from "@/components/EventCard.astro";
 import { getEvents } from "@/lib/events";
 
-const events = getEvents();
+const events = await getEvents();
 const now = new Date();
 const upcomingEvents = events.filter((e) => new Date(e.startDate) >= now);
 const pastEvents = events.filter((e) => new Date(e.startDate) < now);
