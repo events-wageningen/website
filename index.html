@@ -1,8 +1,8 @@
 <!DOCTYPE html><html lang="nl"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="Evenementen in Wageningen"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><title>Events in Wageningen</title><link rel="stylesheet" href="/_astro/index.BD9OWVH6.css"></head> <body class="min-h-screen text-gray-900" style="background-color:#FFF7ED">  <header class="bg-white flex items-center justify-center" style="height:160px"> <img src="/logo.jpg" alt="Events Wageningen" class="h-full w-auto object-contain"> </header> <main class="mx-auto max-w-5xl px-4 py-10"> <!-- Filter toggle tab --> <div class="mb-4 flex justify-center"> <button id="filter-toggle" class="flex items-center gap-2 rounded-full border border-gray-300 bg-white px-10 py-2.5 text-sm font-semibold text-gray-700 shadow-sm transition hover:border-orange-400 hover:text-orange-600"> <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"> <line x1="4" y1="6" x2="20" y2="6"></line> <line x1="8" y1="12" x2="16" y2="12"></line> <line x1="11" y1="18" x2="13" y2="18"></line> </svg>
 Filters
-</button> </div> <!-- Filter panel (hidden by default) --> <div id="filter-panel" style="display:none" class="mb-8 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm"> <div class="mb-5"> <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400">Categories</p> <div class="flex flex-wrap gap-2"> <button data-cat="art" class="filter-btn rounded-full border border-gray-300 bg-white px-3 py-1 text-sm font-medium text-gray-600 transition hover:border-orange-400 hover:text-orange-600"> 🎨 Art </button><button data-cat="dance" class="filter-btn rounded-full border border-gray-300 bg-white px-3 py-1 text-sm font-medium text-gray-600 transition hover:border-orange-400 hover:text-orange-600"> 💃 Dance </button><button data-cat="food" class="filter-btn rounded-full border border-gray-300 bg-white px-3 py-1 text-sm font-medium text-gray-600 transition hover:border-orange-400 hover:text-orange-600"> 🍕 Food </button><button data-cat="games" class="filter-btn rounded-full border border-gray-300 bg-white px-3 py-1 text-sm font-medium text-gray-600 transition hover:border-orange-400 hover:text-orange-600"> 🎮 Games </button><button data-cat="markets" class="filter-btn rounded-full border border-gray-300 bg-white px-3 py-1 text-sm font-medium text-gray-600 transition hover:border-orange-400 hover:text-orange-600"> 🛒 Markets </button><button data-cat="meditation" class="filter-btn rounded-full border border-gray-300 bg-white px-3 py-1 text-sm font-medium text-gray-600 transition hover:border-orange-400 hover:text-orange-600"> 🕯 Meditation </button><button data-cat="movies" class="filter-btn rounded-full border border-gray-300 bg-white px-3 py-1 text-sm font-medium text-gray-600 transition hover:border-orange-400 hover:text-orange-600"> 🎬 Movies </button><button data-cat="music" class="filter-btn rounded-full border border-gray-300 bg-white px-3 py-1 text-sm font-medium text-gray-600 transition hover:border-orange-400 hover:text-orange-600"> 🎵 Music </button><button data-cat="nature" class="filter-btn rounded-full border border-gray-300 bg-white px-3 py-1 text-sm font-medium text-gray-600 transition hover:border-orange-400 hover:text-orange-600"> 🌿 Nature </button><button data-cat="politics" class="filter-btn rounded-full border border-gray-300 bg-white px-3 py-1 text-sm font-medium text-gray-600 transition hover:border-orange-400 hover:text-orange-600"> 🗳 Politics </button><button data-cat="sport" class="filter-btn rounded-full border border-gray-300 bg-white px-3 py-1 text-sm font-medium text-gray-600 transition hover:border-orange-400 hover:text-orange-600"> ⚽ Sport </button><button data-cat="talks" class="filter-btn rounded-full border border-gray-300 bg-white px-3 py-1 text-sm font-medium text-gray-600 transition hover:border-orange-400 hover:text-orange-600"> 🎤 Talks </button><button data-cat="workshops" class="filter-btn rounded-full border border-gray-300 bg-white px-3 py-1 text-sm font-medium text-gray-600 transition hover:border-orange-400 hover:text-orange-600"> 🔧 Workshops </button><button data-cat="yoga" class="filter-btn rounded-full border border-gray-300 bg-white px-3 py-1 text-sm font-medium text-gray-600 transition hover:border-orange-400 hover:text-orange-600"> 🧘 Yoga </button> </div> </div> <div class="border-t border-gray-100 pt-5"> <p class="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">Starting date</p> <div class="flex flex-wrap items-center gap-4"> <div class="flex items-center gap-2"> <label for="filter-from" class="text-sm text-gray-600 whitespace-nowrap">From</label> <input type="date" id="filter-from" class="rounded-lg border border-gray-300 px-3 py-1.5 text-sm text-gray-700 focus:border-orange-400 focus:outline-none"> </div> <div class="flex items-center gap-2"> <label for="filter-to" class="text-sm text-gray-600 whitespace-nowrap">To</label> <input type="date" id="filter-to" class="rounded-lg border border-gray-300 px-3 py-1.5 text-sm text-gray-700 focus:border-orange-400 focus:outline-none"> </div> <button id="filter-clear" class="rounded-full border border-gray-200 px-3 py-1.5 text-sm text-gray-500 transition hover:border-orange-300 hover:text-orange-500">
+</button> </div> <!-- Filter panel (hidden by default) --> <div id="filter-panel" style="display:none" class="mb-8 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm"> <div class="mb-5"> <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400">Categories</p> <div class="flex flex-wrap gap-2"> <button data-cat="art" class="filter-btn rounded-full border border-gray-300 bg-white px-3 py-1 text-sm font-medium text-gray-600 transition hover:border-orange-400 hover:text-orange-600"> 🎨 Art </button><button data-cat="dance" class="filter-btn rounded-full border border-gray-300 bg-white px-3 py-1 text-sm font-medium text-gray-600 transition hover:border-orange-400 hover:text-orange-600"> 💃 Dance </button><button data-cat="food" class="filter-btn rounded-full border border-gray-300 bg-white px-3 py-1 text-sm font-medium text-gray-600 transition hover:border-orange-400 hover:text-orange-600"> 🍕 Food </button><button data-cat="games" class="filter-btn rounded-full border border-gray-300 bg-white px-3 py-1 text-sm font-medium text-gray-600 transition hover:border-orange-400 hover:text-orange-600"> 🎮 Games </button><button data-cat="markets" class="filter-btn rounded-full border border-gray-300 bg-white px-3 py-1 text-sm font-medium text-gray-600 transition hover:border-orange-400 hover:text-orange-600"> 🛒 Markets </button><button data-cat="meditation" class="filter-btn rounded-full border border-gray-300 bg-white px-3 py-1 text-sm font-medium text-gray-600 transition hover:border-orange-400 hover:text-orange-600"> 🕯 Meditation </button><button data-cat="movies" class="filter-btn rounded-full border border-gray-300 bg-white px-3 py-1 text-sm font-medium text-gray-600 transition hover:border-orange-400 hover:text-orange-600"> 🎬 Movies </button><button data-cat="music" class="filter-btn rounded-full border border-gray-300 bg-white px-3 py-1 text-sm font-medium text-gray-600 transition hover:border-orange-400 hover:text-orange-600"> 🎵 Music </button><button data-cat="nature" class="filter-btn rounded-full border border-gray-300 bg-white px-3 py-1 text-sm font-medium text-gray-600 transition hover:border-orange-400 hover:text-orange-600"> 🌿 Nature </button><button data-cat="politics" class="filter-btn rounded-full border border-gray-300 bg-white px-3 py-1 text-sm font-medium text-gray-600 transition hover:border-orange-400 hover:text-orange-600"> 🗳 Politics </button><button data-cat="sport" class="filter-btn rounded-full border border-gray-300 bg-white px-3 py-1 text-sm font-medium text-gray-600 transition hover:border-orange-400 hover:text-orange-600"> ⚽ Sport </button><button data-cat="talks" class="filter-btn rounded-full border border-gray-300 bg-white px-3 py-1 text-sm font-medium text-gray-600 transition hover:border-orange-400 hover:text-orange-600"> 🎤 Talks </button><button data-cat="workshops" class="filter-btn rounded-full border border-gray-300 bg-white px-3 py-1 text-sm font-medium text-gray-600 transition hover:border-orange-400 hover:text-orange-600"> 🔧 Workshops </button><button data-cat="yoga" class="filter-btn rounded-full border border-gray-300 bg-white px-3 py-1 text-sm font-medium text-gray-600 transition hover:border-orange-400 hover:text-orange-600"> 🧘 Yoga </button> </div> </div> <div class="border-t border-gray-100 pt-5"> <p class="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">Starting date</p> <div class="flex flex-wrap items-center gap-4"> <div class="flex items-center gap-2"> <label for="filter-from" class="text-sm text-gray-600 whitespace-nowrap">From</label> <input type="date" id="filter-from" class="rounded-lg border border-gray-300 px-3 py-1.5 text-sm text-gray-700 focus:border-orange-400 focus:outline-none"> </div> <div class="flex items-center gap-2"> <label for="filter-to" class="text-sm text-gray-600 whitespace-nowrap">To</label> <input type="date" id="filter-to" class="rounded-lg border border-gray-300 px-3 py-1.5 text-sm text-gray-700 focus:border-orange-400 focus:outline-none"> </div> </div> </div> <div class="border-t border-gray-100 pt-5"> <p class="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">City</p> <div class="flex flex-wrap gap-2" id="city-filters"> <button data-city="Wageningen" class="city-btn rounded-full border border-gray-300 bg-white px-3 py-1 text-sm font-medium text-gray-600 transition hover:border-orange-400 hover:text-orange-600"> Wageningen </button><button data-city="Droevendaal" class="city-btn rounded-full border border-gray-300 bg-white px-3 py-1 text-sm font-medium text-gray-600 transition hover:border-orange-400 hover:text-orange-600"> Droevendaal </button><button data-city="Bennekom" class="city-btn rounded-full border border-gray-300 bg-white px-3 py-1 text-sm font-medium text-gray-600 transition hover:border-orange-400 hover:text-orange-600"> Bennekom </button><button data-city="Renkum" class="city-btn rounded-full border border-gray-300 bg-white px-3 py-1 text-sm font-medium text-gray-600 transition hover:border-orange-400 hover:text-orange-600"> Renkum </button><button data-city="Ede" class="city-btn rounded-full border border-gray-300 bg-white px-3 py-1 text-sm font-medium text-gray-600 transition hover:border-orange-400 hover:text-orange-600"> Ede </button><button data-city="Rhenen" class="city-btn rounded-full border border-gray-300 bg-white px-3 py-1 text-sm font-medium text-gray-600 transition hover:border-orange-400 hover:text-orange-600"> Rhenen </button> </div> </div> <div class="flex justify-end pt-5"> <button id="filter-clear" class="rounded-full border border-gray-200 px-4 py-1.5 text-sm text-gray-500 transition hover:border-orange-300 hover:text-orange-500">
 Clear all
-</button> </div> </div> </div> <section id="section-upcoming"> <h2 class="mb-6 text-2xl font-bold" style="color:#99582B">
+</button> </div> </div> <section id="section-upcoming"> <h2 class="mb-6 text-2xl font-bold" style="color:#99582B">
 Upcoming events
 </h2> <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"> <article data-categories="games,talks" data-event-id="science-pub-quiz-may-2026" class="event-card flex flex-col gap-3 rounded-2xl border border-gray-200 bg-white shadow-sm transition-shadow hover:shadow-md overflow-hidden cursor-pointer"> <!-- Event image --> <img src="/images/science-pub-quiz-may-2026.jpg" alt="Science Pub Quiz Night" class="w-full h-40 object-cover" onerror="this.onerror=null;this.src='/default.jpg'"> <div class="flex flex-col gap-3 p-6 pt-3"> <!-- Date & time --> <div class="flex items-center justify-between gap-2"> <time datetime="2026-05-08T17:30:00+00:00" class="text-sm font-semibold uppercase tracking-wide text-emerald-600"> Friday, 8 May 2026 · 17:30 </time> <span class="rounded-full px-2.5 py-0.5 text-xs font-semibold bg-blue-100 text-blue-700"> Paid </span> </div> <!-- Name --> <h2 class="text-xl font-bold leading-snug text-gray-900"> Science Pub Quiz Night </h2> <!-- Description --> <p class="text-sm text-gray-600 line-clamp-3">Test your knowledge at Wageningen&#39;s favourite science pub quiz. Teams of up to four compete across rounds covering biology, climate, food science, and general trivia. Prizes for the top three teams.</p> <!-- Location --> <p class="flex items-center gap-1.5 text-sm text-gray-500"> <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"> <path fill-rule="evenodd" d="M11.54 22.351l.07.04.028.016a.76.76 0 00.723 0l.028-.015.071-.041a16.975 16.975 0 001.144-.742 19.58 19.58 0 002.683-2.282c1.944-2.079 3.218-4.474 3.218-7.327a8.5 8.5 0 00-17 0c0 2.853 1.274 5.248 3.218 7.327a19.58 19.58 0 002.669 2.268 16.975 16.975 0 001.148.746zM12 13.5a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"></path> </svg> Café De Zaaier, Wageningen </p> <!-- Categories --> <div class="flex flex-wrap gap-1.5"> <span class="rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium capitalize text-gray-600"> 🎮 Games </span><span class="rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium capitalize text-gray-600"> 🎤 Talks </span> </div> <!-- Tags --> <div class="flex flex-wrap gap-1"> <span class="rounded-full bg-orange-50 px-2 py-0.5 text-xs text-orange-600">
 #indoor </span><span class="rounded-full bg-orange-50 px-2 py-0.5 text-xs text-orange-600">
@@ -55,6 +55,7 @@ const siteBaseUrl = "/";
 
   // ── Filters: shared state ──────────────────────────────────────────────────
   const filterBtns    = document.querySelectorAll('.filter-btn');
+  const cityBtns      = document.querySelectorAll('.city-btn');
   const cards         = document.querySelectorAll('article[data-categories]');
   const sectionUpcoming = document.getElementById('section-upcoming');
   const sectionPast   = document.getElementById('section-past');
@@ -62,6 +63,7 @@ const siteBaseUrl = "/";
   const filterTo      = document.getElementById('filter-to');
   const filterClear   = document.getElementById('filter-clear');
   const selectedCats  = new Set();
+  const selectedCities = new Set();
 
   function applyFilter() {
     const from = filterFrom.value ? new Date(filterFrom.value) : null;
@@ -73,12 +75,14 @@ const siteBaseUrl = "/";
 
       const ev = eventsData.find((x) => x.id === card.dataset.eventId);
       let dateOk = true;
+      let cityOk = true;
       if (ev) {
         const start = new Date(ev.startDate);
         if (from && start < from) dateOk = false;
         if (to   && start > to)   dateOk = false;
+        if (selectedCities.size > 0 && !selectedCities.has(ev.location.city)) cityOk = false;
       }
-      card.style.display = catOk && dateOk ? '' : 'none';
+      card.style.display = catOk && dateOk && cityOk ? '' : 'none';
     });
 
     [sectionUpcoming, sectionPast].forEach((section) => {
@@ -89,20 +93,31 @@ const siteBaseUrl = "/";
     });
   }
 
+  function activateBtn(btn) {
+    btn.style.backgroundColor = '#D1783B';
+    btn.style.color = '#fff';
+    btn.style.borderColor = '#D1783B';
+  }
+  function deactivateBtn(btn) {
+    btn.style.backgroundColor = '';
+    btn.style.color = '';
+    btn.style.borderColor = '';
+  }
+
   filterBtns.forEach((btn) => {
     btn.addEventListener('click', () => {
       const cat = btn.dataset.cat;
-      if (selectedCats.has(cat)) {
-        selectedCats.delete(cat);
-        btn.style.backgroundColor = '';
-        btn.style.color = '';
-        btn.style.borderColor = '';
-      } else {
-        selectedCats.add(cat);
-        btn.style.backgroundColor = '#D1783B';
-        btn.style.color = '#fff';
-        btn.style.borderColor = '#D1783B';
-      }
+      if (selectedCats.has(cat)) { selectedCats.delete(cat); deactivateBtn(btn); }
+      else                        { selectedCats.add(cat);    activateBtn(btn); }
+      applyFilter();
+    });
+  });
+
+  cityBtns.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const city = btn.dataset.city;
+      if (selectedCities.has(city)) { selectedCities.delete(city); deactivateBtn(btn); }
+      else                           { selectedCities.add(city);    activateBtn(btn); }
       applyFilter();
     });
   });
@@ -112,11 +127,9 @@ const siteBaseUrl = "/";
 
   filterClear.addEventListener('click', () => {
     selectedCats.clear();
-    filterBtns.forEach((btn) => {
-      btn.style.backgroundColor = '';
-      btn.style.color = '';
-      btn.style.borderColor = '';
-    });
+    selectedCities.clear();
+    filterBtns.forEach(deactivateBtn);
+    cityBtns.forEach(deactivateBtn);
     filterFrom.value = '';
     filterTo.value = '';
     applyFilter();
