@@ -91,7 +91,14 @@ const pastEvents = events.filter((e) => new Date(e.startDate) < now);
         </div>
       </div>
 
-      <div class="flex justify-end pt-5">
+      <div class="flex items-center justify-between pt-5">
+        <button
+          id="filter-collapse"
+          aria-label="Close filters"
+          class="rounded-full border border-gray-200 px-3 py-1.5 text-gray-400 transition hover:border-orange-300 hover:text-orange-500 leading-none"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+        </button>
         <button
           id="filter-clear"
           class="rounded-full border border-gray-200 px-4 py-1.5 text-sm text-gray-500 transition hover:border-orange-300 hover:text-orange-500"
@@ -185,13 +192,26 @@ const pastEvents = events.filter((e) => new Date(e.startDate) < now);
   // ── Filter panel toggle ────────────────────────────────────────────────────
   const filterToggle = document.getElementById('filter-toggle');
   const filterPanel  = document.getElementById('filter-panel');
+  function closeFilterPanel() {
+    filterPanel.style.display = 'none';
+    filterToggle.style.backgroundColor = '';
+    filterToggle.style.color           = '';
+    filterToggle.style.borderColor     = '';
+  }
+
   filterToggle.addEventListener('click', () => {
     const open = filterPanel.style.display !== 'none';
-    filterPanel.style.display = open ? 'none' : '';
-    filterToggle.style.backgroundColor = open ? '' : '#D1783B';
-    filterToggle.style.color           = open ? '' : '#fff';
-    filterToggle.style.borderColor     = open ? '' : '#D1783B';
+    if (open) {
+      closeFilterPanel();
+    } else {
+      filterPanel.style.display = '';
+      filterToggle.style.backgroundColor = '#D1783B';
+      filterToggle.style.color           = '#fff';
+      filterToggle.style.borderColor     = '#D1783B';
+    }
   });
+
+  document.getElementById('filter-collapse').addEventListener('click', closeFilterPanel);
 
   // ── Filters: shared state ──────────────────────────────────────────────────
   const filterBtns    = document.querySelectorAll('.filter-btn');
