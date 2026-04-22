@@ -36,5 +36,7 @@ export interface Event {
   url: string;
   price: EventPrice;
   status: EventStatus;
+  lat?: number;
+  lon?: number;
 }
 

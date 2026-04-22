@@ -161,6 +161,7 @@ const pastEvents = events.filter((e) => new Date(e.startDate) < now);
           </div>
           <h2 id="modal-name" class="text-2xl font-bold text-gray-900"></h2>
           <p id="modal-location" class="text-sm text-gray-500"></p>
+          <div id="modal-map" style="display:none;height:260px;border-radius:0.75rem;overflow:hidden;margin-top:0.25rem"></div>
           <p id="modal-desc" class="text-sm text-gray-700 whitespace-pre-line"></p>
           <div id="modal-cats" class="flex flex-wrap gap-1.5"></div>
           <div id="modal-tags" class="flex flex-wrap gap-1"></div>
@@ -303,7 +304,29 @@ const pastEvents = events.filter((e) => new Date(e.startDate) < now);
     return new Date(iso).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
   }
 
-  function openModal(ev) {
+  // ── Leaflet lazy loader ────────────────────────────────────────────────────────────
+  let _leafletReady = false;
+  let _leafletLoading = null;
+  let _mapInstance = null;
+  let _mapMarker = null;
+
+  function loadLeaflet() {
+    if (_leafletReady) return Promise.resolve();
+    if (_leafletLoading) return _leafletLoading;
+    _leafletLoading = new Promise((resolve) => {
+      const cssLink = document.createElement('link');
+      cssLink.rel = 'stylesheet';
+      cssLink.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+      document.head.appendChild(cssLink);
+      const jsScript = document.createElement('script');
+      jsScript.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+      jsScript.onload = () => { _leafletReady = true; resolve(undefined); };
+      document.head.appendChild(jsScript);
+    });
+    return _leafletLoading;
+  }
+
+  async function openModal(ev) {
     modalImg.src = siteBaseUrl + 'images/' + ev.id + '.jpg';
     modalImg.alt = ev.name;
     modalImg.onerror = () => { modalImg.onerror = null; modalImg.src = siteBaseUrl + 'default.jpg'; };
@@ -342,6 +365,27 @@ const pastEvents = events.filter((e) => new Date(e.startDate) < now);
       modalLink.style.display = 'none';
     }
 
+    // ── Map ──────────────────────────────────────────────────────────────────
+    const mapDiv = document.getElementById('modal-map');
+    if (ev.lat != null && ev.lon != null) {
+      mapDiv.style.display = '';
+      await loadLeaflet();
+      if (!_mapInstance) {
+        _mapInstance = L.map('modal-map').setView([ev.lat, ev.lon], 16);
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          maxZoom: 19,
+          attribution: '\u00a9 <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        }).addTo(_mapInstance);
+        _mapMarker = L.marker([ev.lat, ev.lon]).addTo(_mapInstance);
+      } else {
+        _mapInstance.setView([ev.lat, ev.lon], 16);
+        _mapMarker.setLatLng([ev.lat, ev.lon]);
+      }
+      requestAnimationFrame(() => _mapInstance.invalidateSize());
+    } else {
+      mapDiv.style.display = 'none';
+    }
+
     modal.style.display = '';
     modal.scrollTop = 0;
     document.body.style.overflow = 'hidden';
@@ -357,7 +401,7 @@ const pastEvents = events.filter((e) => new Date(e.startDate) < now);
     card.addEventListener('click', (e) => {
       if (e.target.closest('[data-no-modal]')) return;
       const ev = eventsData.find((x) => x.id === card.dataset.eventId);
-      if (ev) openModal(ev);
+      if (ev) openModal(ev).catch(console.error);
     });
   });
 
