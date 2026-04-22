@@ -22,6 +22,7 @@ const priceColor: Record<Event["price"], string> = {
 ---
 
 <article
+  data-categories={event.category.join(",")}
   class="flex flex-col gap-3 rounded-2xl border border-gray-200 bg-white shadow-sm transition-shadow hover:shadow-md overflow-hidden"
 >
   <!-- Event image -->

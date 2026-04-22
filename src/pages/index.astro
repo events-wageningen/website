@@ -20,6 +20,19 @@ const pastEvents = events.filter((e) => new Date(e.startDate) < now);
   </header>
 
   <main class="mx-auto max-w-5xl px-4 py-10">
+    {categoriesList.length > 0 && (
+      <div class="mb-8 flex flex-wrap gap-2" id="category-filters">
+        {categoriesList.map((cat) => (
+          <button
+            data-cat={cat.id}
+            class="filter-btn rounded-full border border-gray-300 bg-white px-3 py-1 text-sm font-medium text-gray-600 transition hover:border-orange-400 hover:text-orange-600"
+          >
+            {cat.emoji} {cat.label}
+          </button>
+        ))}
+      </div>
+    )}
+
     {
       events.length === 0 ? (
         <p class="text-center text-gray-500 text-lg py-20">
@@ -28,8 +41,8 @@ const pastEvents = events.filter((e) => new Date(e.startDate) < now);
       ) : (
         <>
           {upcomingEvents.length > 0 && (
-            <section>
-              <h2 class="mb-6 text-2xl font-bold" style="color:#D1783B">
+            <section id="section-upcoming">
+              <h2 class="mb-6 text-2xl font-bold" style="color:#99582B">
                 Upcoming events
               </h2>
               <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -41,8 +54,8 @@ const pastEvents = events.filter((e) => new Date(e.startDate) < now);
           )}
 
           {pastEvents.length > 0 && (
-            <section class="mt-14">
-              <h2 class="mb-6 text-2xl font-bold" style="color:#D1783B">
+            <section id="section-past" class="mt-14">
+              <h2 class="mb-6 text-2xl font-bold" style="color:#C29B78">
                 Past events
               </h2>
               <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 opacity-60">
@@ -61,3 +74,50 @@ const pastEvents = events.filter((e) => new Date(e.startDate) < now);
     © {new Date().getFullYear()} Events Wageningen
   </footer>
 </Layout>
+
+<script>
+  const buttons = document.querySelectorAll<HTMLButtonElement>(".filter-btn");
+  const cards = document.querySelectorAll<HTMLElement>("article[data-categories]");
+  const sectionUpcoming = document.getElementById("section-upcoming");
+  const sectionPast = document.getElementById("section-past");
+
+  const selected = new Set<string>();
+
+  function applyFilter() {
+    cards.forEach((card) => {
+      if (selected.size === 0) {
+        card.style.display = "";
+        return;
+      }
+      const cats = (card.dataset.categories ?? "").split(",").filter(Boolean);
+      const match = cats.some((c) => selected.has(c));
+      card.style.display = match ? "" : "none";
+    });
+
+    // Hide section headings when all their cards are hidden
+    [sectionUpcoming, sectionPast].forEach((section) => {
+      if (!section) return;
+      const visible = [...section.querySelectorAll<HTMLElement>("article[data-categories]")]
+        .some((c) => c.style.display !== "none");
+      (section as HTMLElement).style.display = visible || selected.size === 0 ? "" : "none";
+    });
+  }
+
+  buttons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const cat = btn.dataset.cat!;
+      if (selected.has(cat)) {
+        selected.delete(cat);
+        btn.style.backgroundColor = "";
+        btn.style.color = "";
+        btn.style.borderColor = "";
+      } else {
+        selected.add(cat);
+        btn.style.backgroundColor = "#D1783B";
+        btn.style.color = "#fff";
+        btn.style.borderColor = "#D1783B";
+      }
+      applyFilter();
+    });
+  });
+</script>
