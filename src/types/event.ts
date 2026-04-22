@@ -1,5 +1,44 @@
+export type EventCategory =
+  | "music"
+  | "talks"
+  | "movies"
+  | "dance"
+  | "workshops"
+  | "nature"
+  | "yoga"
+  | "meditation"
+  | "sport"
+  | "politics"
+  | "art"
+  | "games"
+  | "markets"
+  | "food";
+
+export type EventPrice = "free" | "paid" | "donation";
+
+export type EventStatus = "scheduled" | "cancelled";
+
+export interface EventLocation {
+  name: string;
+  city: string;
+}
+
 export interface Event {
-  date: string;      // ISO 8601 date string, e.g. "2026-05-15"
-  title: string;
-  location: string;
+  id: string;
+  name: string;
+  slug: string;
+  description: string;
+  startDate: string;
+  endDate: string;
+  location: EventLocation;
+  category: EventCategory[];
+  tags: string[];
+  image: string;
+  url: string;
+  price: EventPrice;
+  status: EventStatus;
+}
+
+export interface EventsFile {
+  events: Event[];
 }
