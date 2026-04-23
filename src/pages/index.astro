@@ -168,15 +168,16 @@ const pastEvents = events.filter((e) => new Date(e.startDate) < now);
           </div>
           <h2 id="modal-name" class="text-2xl font-bold text-gray-900"></h2>
           <p id="modal-location" class="text-sm text-gray-500"></p>
-          <div id="modal-map" style="display:none;height:260px;border-radius:0.75rem;overflow:hidden;margin-top:0.25rem"></div>
-          <div id="modal-maps-btn" style="display:none">
+          <div id="modal-maps-btn" style="display:none;position:relative;margin-top:0.25rem;border-radius:0.75rem;overflow:hidden">
+            <div id="modal-map" style="height:260px"></div>
             <a
               id="modal-maps-link"
               href="#"
               target="_blank"
               rel="noopener noreferrer"
               data-no-modal
-              class="inline-flex items-center gap-1.5 rounded-full border border-gray-300 px-3 py-1 text-xs font-medium text-gray-600 transition hover:border-orange-400 hover:text-orange-600"
+              style="position:absolute;top:8px;right:8px;z-index:1000;background:white;box-shadow:0 1px 5px rgba(0,0,0,0.3)"
+              class="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold text-gray-700 transition hover:text-orange-600"
             >&#x1F30D; Open in Maps</a>
           </div>
           <p id="modal-desc" class="text-sm text-gray-700 whitespace-pre-line"></p>
@@ -404,20 +405,12 @@ const pastEvents = events.filter((e) => new Date(e.startDate) < now);
       modalLink.style.display = 'none';
     }
 
-    // ── Maps button ──────────────────────────────────────────────────────────
+    // ── Map + Maps button ─────────────────────────────────────────────────────
     const mapsBtn  = document.getElementById('modal-maps-btn');
     const mapsLink = document.getElementById('modal-maps-link');
     if (ev.lat != null && ev.lon != null) {
       mapsLink.href = `https://maps.google.com/?q=${ev.lat},${ev.lon}`;
       mapsBtn.style.display = '';
-    } else {
-      mapsBtn.style.display = 'none';
-    }
-
-    // ── Map ──────────────────────────────────────────────────────────────────
-    const mapDiv = document.getElementById('modal-map');
-    if (ev.lat != null && ev.lon != null) {
-      mapDiv.style.display = '';
       await loadLeaflet();
       if (!_mapInstance) {
         _mapInstance = L.map('modal-map').setView([ev.lat, ev.lon], 16);
@@ -432,7 +425,7 @@ const pastEvents = events.filter((e) => new Date(e.startDate) < now);
       }
       requestAnimationFrame(() => _mapInstance.invalidateSize());
     } else {
-      mapDiv.style.display = 'none';
+      mapsBtn.style.display = 'none';
     }
 
     modal.style.display = '';
@@ -461,26 +454,26 @@ const pastEvents = events.filter((e) => new Date(e.startDate) < now);
   });
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
 
-  // ── ICS calendar download ──────────────────────────────────────────────────
+  // ── ICS / calendar ────────────────────────────────────────────────────────
   function toICSDate(iso) {
     return new Date(iso).toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
   }
   function escICS(str) {
     return (str || '').replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\n/g, '\\n');
   }
-
-  modalCalBtn.addEventListener('click', () => {
-    const ev = _currentEvent;
-    if (!ev) return;
+  function buildICS(ev) {
     const dtStart = toICSDate(ev.startDate);
-    const dtEnd   = ev.endDate
-      ? toICSDate(ev.endDate)
-      : toICSDate(new Date(new Date(ev.startDate).getTime() + 2 * 3600 * 1000).toISOString());
-    const lines = [
+    // If end === start, add 2 hours to avoid invalid events
+    const endMs = ev.endDate && ev.endDate !== ev.startDate
+      ? new Date(ev.endDate).getTime()
+      : new Date(ev.startDate).getTime() + 2 * 3600 * 1000;
+    const dtEnd = toICSDate(new Date(endMs).toISOString());
+    return [
       'BEGIN:VCALENDAR',
       'VERSION:2.0',
       'PRODID:-//Events Wageningen//EN',
       'CALSCALE:GREGORIAN',
+      'METHOD:PUBLISH',
       'BEGIN:VEVENT',
       `UID:${ev.id}@events-wageningen.nl`,
       `DTSTART:${dtStart}`,
@@ -492,12 +485,33 @@ const pastEvents = events.filter((e) => new Date(e.startDate) < now);
       'END:VEVENT',
       'END:VCALENDAR',
     ].filter(Boolean).join('\r\n');
+  }
 
-    const blob = new Blob([lines], { type: 'text/calendar;charset=utf-8' });
-    const url  = URL.createObjectURL(blob);
-    const a    = document.createElement('a');
+  modalCalBtn.addEventListener('click', async () => {
+    const ev = _currentEvent;
+    if (!ev) return;
+    const icsText = buildICS(ev);
+    const filename = (ev.slug || ev.id) + '.ics';
+    const blob = new Blob([icsText], { type: 'text/calendar;charset=utf-8' });
+
+    // Try Web Share API with file (works natively on Android/iOS — opens calendar app)
+    if (navigator.canShare && navigator.canShare({ files: [new File([blob], filename, { type: 'text/calendar' })] })) {
+      try {
+        await navigator.share({
+          files: [new File([blob], filename, { type: 'text/calendar' })],
+          title: ev.name,
+        });
+        return;
+      } catch (e) {
+        if (e.name === 'AbortError') return; // user cancelled share sheet
+      }
+    }
+
+    // Fallback: direct download
+    const url = URL.createObjectURL(blob);
+    const a   = document.createElement('a');
     a.href     = url;
-    a.download = (ev.slug || ev.id) + '.ics';
+    a.download = filename;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
