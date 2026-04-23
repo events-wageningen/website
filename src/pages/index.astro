@@ -184,20 +184,40 @@ const pastEvents = events.filter((e) => new Date(e.startDate) < now);
           <div id="modal-cats" class="flex flex-wrap gap-1.5"></div>
           <div id="modal-tags" class="flex flex-wrap gap-1"></div>
           <div class="flex items-center justify-between gap-3 pt-4 flex-wrap">
-            <button
-              id="modal-cal-btn"
-              data-no-modal
-              class="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90"
-              style="background-color:#4a9e6b"
-            >&#x1F4C5; Add to calendar</button>
-            <a
-              id="modal-link"
-              href="#"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="inline-block rounded-full px-4 py-1.5 text-sm font-semibold text-white transition hover:opacity-90"
-              style="background-color:#D1783B;display:none"
-            >Link to event organizers →</a>
+            <div class="relative">
+              <button
+                id="modal-cal-btn"
+                data-no-modal
+                class="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90"
+                style="background-color:#4a9e6b"
+              >&#x1F4C5; Add to calendar</button>
+              <!-- calendar dropdown -->
+              <div id="modal-cal-menu" style="display:none;position:absolute;left:0;bottom:calc(100% + 6px);z-index:200;min-width:200px" class="rounded-xl border border-gray-200 bg-white shadow-lg overflow-hidden">
+                <a id="modal-cal-google" href="#" target="_blank" rel="noopener noreferrer" data-no-modal
+                  class="flex items-center gap-2 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 border-b border-gray-100">
+                  <img src="https://calendar.google.com/googlecalendar/images/favicon_v2014_2.ico" width="16" height="16" alt="" onerror="this.style.display='none'" />
+                  Google Calendar
+                </a>
+                <button id="modal-cal-ics" data-no-modal
+                  class="flex w-full items-center gap-2 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50">
+                  &#x1F4E5; Download .ics
+                </button>
+              </div>
+            </div>
+            <div class="flex items-center gap-3">
+              <a id="modal-contact" href="#" target="_blank" rel="noopener noreferrer" data-no-modal
+                style="display:none;font-size:0.7rem"
+                class="text-gray-300 hover:text-gray-400 transition"
+              >If this post should not be here, contact us</a>
+              <a
+                id="modal-link"
+                href="#"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="inline-block rounded-full px-4 py-1.5 text-sm font-semibold text-white transition hover:opacity-90"
+                style="background-color:#D1783B;display:none"
+              >Link to event organizers →</a>
+            </div>
           </div>
         </div>
       </div>
@@ -323,9 +343,11 @@ const pastEvents = events.filter((e) => new Date(e.startDate) < now);
   const modalDesc  = document.getElementById('modal-desc');
   const modalCats  = document.getElementById('modal-cats');
   const modalTags  = document.getElementById('modal-tags');
-  const modalLink  = document.getElementById('modal-link');
-  const modalCalBtn = document.getElementById('modal-cal-btn');
-  let _currentEvent = null;
+  const modalLink    = document.getElementById('modal-link');
+  const modalCalBtn  = document.getElementById('modal-cal-btn');
+  const modalCalMenu = document.getElementById('modal-cal-menu');
+  const modalContact = document.getElementById('modal-contact');
+  let _currentEvent  = null;
 
   const PRICE_LABELS = { free: 'Free', paid: 'Paid', donation: 'Donation' };
   const PRICE_COLORS = {
@@ -405,6 +427,14 @@ const pastEvents = events.filter((e) => new Date(e.startDate) < now);
       modalLink.style.display = 'none';
     }
 
+    // ── Contact organizer ─────────────────────────────────────────────────────
+    if (ev.creatorTelegramId) {
+      modalContact.href = `tg://user?id=${ev.creatorTelegramId}`;
+      modalContact.style.display = '';
+    } else {
+      modalContact.style.display = 'none';
+    }
+
     // ── Map + Maps button ─────────────────────────────────────────────────────
     const mapsBtn  = document.getElementById('modal-maps-btn');
     const mapsLink = document.getElementById('modal-maps-link');
@@ -454,7 +484,7 @@ const pastEvents = events.filter((e) => new Date(e.startDate) < now);
   });
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
 
-  // ── ICS / calendar ────────────────────────────────────────────────────────
+  // ── Calendar dropdown ─────────────────────────────────────────────────────
   function toICSDate(iso) {
     return new Date(iso).toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
   }
@@ -463,7 +493,6 @@ const pastEvents = events.filter((e) => new Date(e.startDate) < now);
   }
   function buildICS(ev) {
     const dtStart = toICSDate(ev.startDate);
-    // If end === start, add 2 hours to avoid invalid events
     const endMs = ev.endDate && ev.endDate !== ev.startDate
       ? new Date(ev.endDate).getTime()
       : new Date(ev.startDate).getTime() + 2 * 3600 * 1000;
@@ -486,32 +515,45 @@ const pastEvents = events.filter((e) => new Date(e.startDate) < now);
       'END:VCALENDAR',
     ].filter(Boolean).join('\r\n');
   }
+  function toGCalDate(iso) {
+    return new Date(iso).toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+  }
 
-  modalCalBtn.addEventListener('click', async () => {
+  // Toggle dropdown
+  modalCalBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const open = modalCalMenu.style.display !== 'none';
+    modalCalMenu.style.display = open ? 'none' : '';
+    // Update Google Calendar URL with current event
+    if (!open && _currentEvent) {
+      const ev = _currentEvent;
+      const endMs = ev.endDate && ev.endDate !== ev.startDate
+        ? new Date(ev.endDate).getTime()
+        : new Date(ev.startDate).getTime() + 2 * 3600 * 1000;
+      const gcStart = toGCalDate(ev.startDate);
+      const gcEnd   = toGCalDate(new Date(endMs).toISOString());
+      const gcUrl = 'https://calendar.google.com/calendar/render?action=TEMPLATE'
+        + `&text=${encodeURIComponent(ev.name)}`
+        + `&dates=${gcStart}/${gcEnd}`
+        + `&details=${encodeURIComponent(ev.description || '')}`
+        + `&location=${encodeURIComponent(ev.location.name + ', ' + ev.location.city)}`;
+      document.getElementById('modal-cal-google').href = gcUrl;
+    }
+  });
+  // Close dropdown when clicking elsewhere
+  document.addEventListener('click', () => { modalCalMenu.style.display = 'none'; });
+  modalCalMenu.addEventListener('click', (e) => e.stopPropagation());
+
+  // Download .ics
+  document.getElementById('modal-cal-ics').addEventListener('click', () => {
     const ev = _currentEvent;
     if (!ev) return;
-    const icsText = buildICS(ev);
-    const filename = (ev.slug || ev.id) + '.ics';
-    const blob = new Blob([icsText], { type: 'text/calendar;charset=utf-8' });
-
-    // Try Web Share API with file (works natively on Android/iOS — opens calendar app)
-    if (navigator.canShare && navigator.canShare({ files: [new File([blob], filename, { type: 'text/calendar' })] })) {
-      try {
-        await navigator.share({
-          files: [new File([blob], filename, { type: 'text/calendar' })],
-          title: ev.name,
-        });
-        return;
-      } catch (e) {
-        if (e.name === 'AbortError') return; // user cancelled share sheet
-      }
-    }
-
-    // Fallback: direct download
-    const url = URL.createObjectURL(blob);
-    const a   = document.createElement('a');
+    modalCalMenu.style.display = 'none';
+    const blob = new Blob([buildICS(ev)], { type: 'text/calendar;charset=utf-8' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
     a.href     = url;
-    a.download = filename;
+    a.download = (ev.slug || ev.id) + '.ics';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);

@@ -47,6 +47,7 @@ export async function getEvents(): Promise<Event[]> {
     status: row.status as Event["status"],
     ...(row.lat != null ? { lat: row.lat as number } : {}),
     ...(row.lon != null ? { lon: row.lon as number } : {}),
+    ...(row.creator_telegram_id != null ? { creatorTelegramId: row.creator_telegram_id as number } : {}),
   }));
 }
 

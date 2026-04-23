@@ -38,5 +38,6 @@ export interface Event {
   status: EventStatus;
   lat?: number;
   lon?: number;
+  creatorTelegramId?: number;
 }
 
