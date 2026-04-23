@@ -169,10 +169,26 @@ const pastEvents = events.filter((e) => new Date(e.startDate) < now);
           <h2 id="modal-name" class="text-2xl font-bold text-gray-900"></h2>
           <p id="modal-location" class="text-sm text-gray-500"></p>
           <div id="modal-map" style="display:none;height:260px;border-radius:0.75rem;overflow:hidden;margin-top:0.25rem"></div>
+          <div id="modal-maps-btn" style="display:none">
+            <a
+              id="modal-maps-link"
+              href="#"
+              target="_blank"
+              rel="noopener noreferrer"
+              data-no-modal
+              class="inline-flex items-center gap-1.5 rounded-full border border-gray-300 px-3 py-1 text-xs font-medium text-gray-600 transition hover:border-orange-400 hover:text-orange-600"
+            >&#x1F30D; Open in Maps</a>
+          </div>
           <p id="modal-desc" class="text-sm text-gray-700 whitespace-pre-line"></p>
           <div id="modal-cats" class="flex flex-wrap gap-1.5"></div>
           <div id="modal-tags" class="flex flex-wrap gap-1"></div>
-          <div class="flex justify-end pt-2">
+          <div class="flex items-center justify-between gap-3 pt-4 flex-wrap">
+            <button
+              id="modal-cal-btn"
+              data-no-modal
+              class="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90"
+              style="background-color:#4a9e6b"
+            >&#x1F4C5; Add to calendar</button>
             <a
               id="modal-link"
               href="#"
@@ -307,6 +323,8 @@ const pastEvents = events.filter((e) => new Date(e.startDate) < now);
   const modalCats  = document.getElementById('modal-cats');
   const modalTags  = document.getElementById('modal-tags');
   const modalLink  = document.getElementById('modal-link');
+  const modalCalBtn = document.getElementById('modal-cal-btn');
+  let _currentEvent = null;
 
   const PRICE_LABELS = { free: 'Free', paid: 'Paid', donation: 'Donation' };
   const PRICE_COLORS = {
@@ -347,6 +365,7 @@ const pastEvents = events.filter((e) => new Date(e.startDate) < now);
   }
 
   async function openModal(ev) {
+    _currentEvent = ev;
     modalImg.src = siteBaseUrl + 'images/' + ev.id + '.jpg';
     modalImg.alt = ev.name;
     modalImg.onerror = () => { modalImg.onerror = null; modalImg.src = siteBaseUrl + 'default.jpg'; };
@@ -383,6 +402,16 @@ const pastEvents = events.filter((e) => new Date(e.startDate) < now);
       modalLink.style.display = '';
     } else {
       modalLink.style.display = 'none';
+    }
+
+    // ── Maps button ──────────────────────────────────────────────────────────
+    const mapsBtn  = document.getElementById('modal-maps-btn');
+    const mapsLink = document.getElementById('modal-maps-link');
+    if (ev.lat != null && ev.lon != null) {
+      mapsLink.href = `https://maps.google.com/?q=${ev.lat},${ev.lon}`;
+      mapsBtn.style.display = '';
+    } else {
+      mapsBtn.style.display = 'none';
     }
 
     // ── Map ──────────────────────────────────────────────────────────────────
@@ -431,4 +460,47 @@ const pastEvents = events.filter((e) => new Date(e.startDate) < now);
     if (!e.target.closest('#modal-panel')) closeModal();
   });
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+
+  // ── ICS calendar download ──────────────────────────────────────────────────
+  function toICSDate(iso) {
+    return new Date(iso).toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+  }
+  function escICS(str) {
+    return (str || '').replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\n/g, '\\n');
+  }
+
+  modalCalBtn.addEventListener('click', () => {
+    const ev = _currentEvent;
+    if (!ev) return;
+    const dtStart = toICSDate(ev.startDate);
+    const dtEnd   = ev.endDate
+      ? toICSDate(ev.endDate)
+      : toICSDate(new Date(new Date(ev.startDate).getTime() + 2 * 3600 * 1000).toISOString());
+    const lines = [
+      'BEGIN:VCALENDAR',
+      'VERSION:2.0',
+      'PRODID:-//Events Wageningen//EN',
+      'CALSCALE:GREGORIAN',
+      'BEGIN:VEVENT',
+      `UID:${ev.id}@events-wageningen.nl`,
+      `DTSTART:${dtStart}`,
+      `DTEND:${dtEnd}`,
+      `SUMMARY:${escICS(ev.name)}`,
+      `LOCATION:${escICS(ev.location.name + ', ' + ev.location.city)}`,
+      ev.description ? `DESCRIPTION:${escICS(ev.description)}` : null,
+      ev.url ? `URL:${ev.url}` : null,
+      'END:VEVENT',
+      'END:VCALENDAR',
+    ].filter(Boolean).join('\r\n');
+
+    const blob = new Blob([lines], { type: 'text/calendar;charset=utf-8' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = url;
+    a.download = (ev.slug || ev.id) + '.ics';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  });
 </script>
