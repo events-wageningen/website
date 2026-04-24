@@ -6,8 +6,12 @@ import { getEvents, getCategories, type Category } from "@/lib/events";
 const [events, categoriesList] = await Promise.all([getEvents(), getCategories()]);
 const categoryMap = Object.fromEntries(categoriesList.map((c) => [c.id, c])) as Record<string, Category>;
 const now = new Date();
-const upcomingEvents = events.filter((e) => new Date(e.startDate) >= now);
-const pastEvents = events.filter((e) => new Date(e.startDate) < now);
+const upcomingEvents = events
+  .filter((e) => new Date(e.startDate) >= now)
+  .sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime());
+const pastEvents = events
+  .filter((e) => new Date(e.startDate) < now)
+  .sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime());
 ---
 
 <Layout title="Events in Wageningen">
@@ -74,6 +78,20 @@ const pastEvents = events.filter((e) => new Date(e.startDate) < now);
               class="rounded-lg border border-gray-300 px-3 py-1.5 text-sm text-gray-700 focus:border-orange-400 focus:outline-none"
             />
           </div>
+        </div>
+      </div>
+
+      <div class="border-t border-gray-100 pt-5">
+        <p class="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">Price</p>
+        <div class="flex flex-wrap gap-2">
+          {(["free", "paid", "donation"] as const).map((p) => (
+            <button
+              data-price={p}
+              class="price-btn rounded-full border border-gray-300 bg-white px-3 py-1 text-sm font-medium text-gray-600 transition hover:border-orange-400 hover:text-orange-600"
+            >
+              {p === "free" ? "✨ Free" : p === "paid" ? "💰 Paid" : "🙏 Donation"}
+            </button>
+          ))}
         </div>
       </div>
 
@@ -253,6 +271,7 @@ const pastEvents = events.filter((e) => new Date(e.startDate) < now);
   // ── Filters: shared state ──────────────────────────────────────────────────
   const filterBtns    = document.querySelectorAll('.filter-btn');
   const cityBtns      = document.querySelectorAll('.city-btn');
+  const priceBtns     = document.querySelectorAll('.price-btn');
   const cards         = document.querySelectorAll('article[data-categories]');
   const sectionUpcoming = document.getElementById('section-upcoming');
   const sectionPast   = document.getElementById('section-past');
@@ -261,6 +280,7 @@ const pastEvents = events.filter((e) => new Date(e.startDate) < now);
   const filterClear   = document.getElementById('filter-clear');
   const selectedCats  = new Set();
   const selectedCities = new Set();
+  const selectedPrices = new Set();
 
   function applyFilter() {
     const from = filterFrom.value ? new Date(filterFrom.value) : null;
@@ -273,13 +293,15 @@ const pastEvents = events.filter((e) => new Date(e.startDate) < now);
       const ev = eventsData.find((x) => x.id === card.dataset.eventId);
       let dateOk = true;
       let cityOk = true;
+      let priceOk = true;
       if (ev) {
         const start = new Date(ev.startDate);
         if (from && start < from) dateOk = false;
         if (to   && start > to)   dateOk = false;
         if (selectedCities.size > 0 && !selectedCities.has(ev.location.city)) cityOk = false;
+        if (selectedPrices.size > 0 && !selectedPrices.has(ev.price)) priceOk = false;
       }
-      card.style.display = catOk && dateOk && cityOk ? '' : 'none';
+      card.style.display = catOk && dateOk && cityOk && priceOk ? '' : 'none';
     });
 
     [sectionUpcoming, sectionPast].forEach((section) => {
@@ -319,14 +341,25 @@ const pastEvents = events.filter((e) => new Date(e.startDate) < now);
     });
   });
 
+  priceBtns.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const price = btn.dataset.price;
+      if (selectedPrices.has(price)) { selectedPrices.delete(price); deactivateBtn(btn); }
+      else                            { selectedPrices.add(price);    activateBtn(btn); }
+      applyFilter();
+    });
+  });
+
   filterFrom.addEventListener('change', applyFilter);
   filterTo.addEventListener('change', applyFilter);
 
   filterClear.addEventListener('click', () => {
     selectedCats.clear();
     selectedCities.clear();
+    selectedPrices.clear();
     filterBtns.forEach(deactivateBtn);
     cityBtns.forEach(deactivateBtn);
+    priceBtns.forEach(deactivateBtn);
     filterFrom.value = '';
     filterTo.value = '';
     applyFilter();
