@@ -59,7 +59,7 @@ const pastEvents = events
         </div>
       )}
 
-      <div class="border-t border-gray-100 pt-5">
+      <div class="border-t border-gray-100 pt-5 pb-5">
         <p class="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">Starting date</p>
         <div class="flex flex-wrap items-center gap-4">
           <div class="flex items-center gap-2">
@@ -81,7 +81,7 @@ const pastEvents = events
         </div>
       </div>
 
-      <div class="border-t border-gray-100 pt-5">
+      <div class="border-t border-gray-100 pt-5 pb-5">
         <p class="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">Price</p>
         <div class="flex flex-wrap gap-2">
           {(["free", "paid", "donation"] as const).map((p) => (
@@ -425,7 +425,17 @@ const pastEvents = events
     modalImg.alt = ev.name;
     modalImg.onerror = () => { modalImg.onerror = null; modalImg.src = siteBaseUrl + 'default.jpg'; };
 
-    modalTime.textContent = fmtDate(ev.startDate) + ' \u00b7 ' + fmtTime(ev.startDate);
+    const hasEnd = ev.endDate && ev.endDate !== ev.startDate;
+    if (hasEnd) {
+      const sameDay = fmtDate(ev.startDate) === fmtDate(ev.endDate);
+      if (sameDay) {
+        modalTime.textContent = fmtDate(ev.startDate) + ' \u00b7 ' + fmtTime(ev.startDate) + ' \u2013 ' + fmtTime(ev.endDate);
+      } else {
+        modalTime.textContent = fmtDate(ev.startDate) + ' \u00b7 ' + fmtTime(ev.startDate) + ' \u2013 ' + fmtDate(ev.endDate) + ' \u00b7 ' + fmtTime(ev.endDate);
+      }
+    } else {
+      modalTime.textContent = fmtDate(ev.startDate) + ' \u00b7 ' + fmtTime(ev.startDate);
+    }
     modalPrice.textContent = PRICE_LABELS[ev.price] || ev.price;
     modalPrice.className = 'rounded-full px-2.5 py-0.5 text-xs font-semibold ' + (PRICE_COLORS[ev.price] || '');
 
