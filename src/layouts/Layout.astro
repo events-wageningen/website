@@ -18,10 +18,12 @@ const { title } = Astro.props;
     <title>{title}</title>
     <style is:global>
       :root {
-        --brand: #EA580C;
-        --brand-dark: #7C2D12;
-        --brand-mid: #9A3412;
-        --brand-bg: #FFFBF5;
+        --brand: #4F7296;        /* muted steel blue */
+        --brand-dark: #1E3A52;   /* deep navy */
+        --brand-mid: #3A6284;    /* mid steel blue */
+        --brand-hover: #365978;  /* hover state */
+        --brand-bg: #F5F7FA;     /* off-white cool */
+        --brand-border: #C5D6E8; /* light blue-gray border */
       }
       html { scroll-behavior: smooth; }
       body { font-family: 'Inter', system-ui, sans-serif; }

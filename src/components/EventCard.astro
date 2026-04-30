@@ -24,7 +24,7 @@ const priceColor: Record<Event["price"], string> = {
 <article
   data-categories={event.category.join(",")}
   data-event-id={event.id}
-  class="event-card card-reveal group flex flex-col gap-3 rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:border-orange-200 overflow-hidden cursor-pointer"
+  class="event-card card-reveal group flex flex-col rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:border-slate-300 overflow-hidden cursor-pointer"
 >
   <!-- Event image with subtle zoom on hover -->
   <div class="overflow-hidden">
@@ -36,12 +36,13 @@ const priceColor: Record<Event["price"], string> = {
     />
   </div>
 
-  <div class="flex flex-col gap-3 p-6 pt-3">
+  <div class="flex flex-col gap-3 p-6 pt-3 flex-1">
     <!-- Date & time -->
     <div class="flex items-center justify-between gap-2">
       <time
         datetime={event.startDate}
-        class="text-sm font-semibold uppercase tracking-wide text-emerald-600"
+        class="text-sm font-semibold uppercase tracking-wide"
+        style="color:#4F7296"
       >
         {formatDate(event.startDate)} · {formatTime(event.startDate)}
       </time>
@@ -113,16 +114,16 @@ const priceColor: Record<Event["price"], string> = {
       </div>
     )}
 
-    <!-- Organizer link button (bottom-right) -->
+    <!-- Organizer link button — always bottom-right -->
     {event.url && (
-      <div class="flex justify-end mt-auto pt-2">
+      <div class="flex justify-end mt-auto pt-4">
         <a
           href={event.url}
           target="_blank"
           rel="noopener noreferrer"
           data-no-modal
           class="inline-block rounded-full px-4 py-1.5 text-sm font-semibold text-white transition hover:opacity-90"
-          style="background-color:#EA580C"
+          style="background-color:#4F7296"
         >
           Link to event organizers →
         </a>
