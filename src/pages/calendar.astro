@@ -7,16 +7,14 @@ const BASE_URL = import.meta.env.BASE_URL;
 ---
 
 <Layout title="Events Calendar · Events Wageningen">
-  <header class="flex items-center justify-center gap-8 bg-white border-b border-gray-200 shadow-sm" style="height:120px">
-    <div class="flex-1 flex justify-end">
-      <a
-        href={BASE_URL}
-        class="block h-full py-4 transition-transform duration-300 hover:scale-105"
-        aria-label="Back to homepage"
-      >
-        <img src={`${BASE_URL}logo.jpg`} alt="Events Wageningen" class="h-24 w-auto object-contain" />
-      </a>
-    </div>
+  <header class="flex items-center justify-center bg-white border-b border-gray-200 shadow-sm" style="height:120px">
+    <a
+      href={BASE_URL}
+      class="block py-4 transition-transform duration-300 hover:scale-105"
+      aria-label="Back to homepage"
+    >
+      <img src={`${BASE_URL}logo.jpg`} alt="Events Wageningen" class="h-24 w-auto object-contain" />
+    </a>
   </header>
 
   <!-- Back to events button above calendar grid -->
@@ -43,7 +41,7 @@ const BASE_URL = import.meta.env.BASE_URL;
       >
         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
       </button>
-      <h1 id="month-title" class="text-xl font-extrabold tracking-tight" style="color:#1E3A52"></h1>
+      <h1 id="month-title" class="cal-title" style="color:#1E3A52"></h1>
       <button
         id="next-month"
         class="flex h-9 w-9 items-center justify-center rounded-full border border-gray-300 bg-white text-gray-600 shadow-sm transition-all duration-200 hover:border-slate-400 hover:text-slate-700 hover:shadow-md"
@@ -54,9 +52,9 @@ const BASE_URL = import.meta.env.BASE_URL;
     </div>
 
     <!-- Weekday headers -->
-    <div class="cal-grid mb-1">
-      {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((d) => (
-        <div class="py-2 text-center text-xs font-semibold uppercase tracking-wider text-gray-400">{d}</div>
+    <div class="cal-grid cal-weekday-row mb-2">
+      {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((d, i) => (
+        <div class={`cal-weekday ${i >= 5 ? 'is-weekend' : ''}`}>{d}</div>
       ))}
     </div>
 
@@ -69,59 +67,76 @@ const BASE_URL = import.meta.env.BASE_URL;
   </footer>
 </Layout>
 
-<style>
+<style is:global>
+  /* Month title — serif accent */
+  .cal-title {
+    font-family: 'DM Serif Display', 'Playfair Display', Georgia, serif;
+    font-size: 1.6rem;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+  }
+
   .cal-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    gap: 5px;
+    gap: 6px;
   }
 
-  /* Each day box */
+  /* Weekday header row */
+  .cal-weekday {
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #9CA3AF;
+    text-align: center;
+    padding: 6px 0;
+  }
+
+  /* Each day cell — clean Google-Cal style with thin border */
   .cal-cell {
-    min-height: 120px;
-    border-radius: 12px;
-    border: 1.5px solid #101624;
-    background: #fff;
+    min-height: 130px;
+    border-radius: 8px;
+    border: 1px solid #E5E7EB;
+    background: #FFFFFF;
     display: flex;
     flex-direction: column;
+    padding: 6px 8px 8px;
+    transition: box-shadow 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
     overflow: hidden;
-    transition: border-color 0.15s ease, box-shadow 0.15s ease;
-    box-shadow: 0 2px 10px rgba(26,38,54,0.04);
   }
   .cal-cell:hover {
-    border-color: #22304A;
-    box-shadow: 0 4px 18px rgba(26,38,54,0.10);
+    border-color: #CBD5E1;
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+    transform: translateY(-2px);
   }
   .cal-cell.is-empty {
     background: transparent;
     border-color: transparent;
     pointer-events: none;
   }
-  .cal-cell.is-today {
-    border-color: #22304A;
-    box-shadow: 0 0 0 2px #22304A;
-  }
-  .cal-cell.is-past {
-    opacity: 0.45;
-  }
+  .cal-cell.is-empty:hover { transform: none; box-shadow: none; }
+  .cal-cell.is-past { opacity: 0.78; }
 
-  /* Day number header band */
-  .cal-day-header {
-    padding: 7px 10px 5px;
-    border-bottom: 1px solid #e5e7eb;
+  /* Day number top-left, plain Inter */
+  .cal-day-num-wrap {
     display: flex;
     align-items: center;
-    justify-content: flex-end;
-    background: #f8fafc;
+    justify-content: flex-start;
+    margin-bottom: 4px;
+    min-height: 26px;
   }
   .cal-day-num {
     font-family: 'Inter', system-ui, sans-serif;
-    font-size: 1.1rem;
-    font-weight: 800;
-    color: #101624;
-    letter-spacing: -0.01em;
-    line-height: 1.1;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #1F2937;
+    line-height: 1;
+    padding: 0 2px;
   }
+  .cal-cell.is-past .cal-day-num { color: #9CA3AF; }
+  /* Today: outlined circle around number (matches reference) */
   .cal-cell.is-today .cal-day-num {
     display: inline-flex;
     align-items: center;
@@ -129,72 +144,61 @@ const BASE_URL = import.meta.env.BASE_URL;
     width: 26px;
     height: 26px;
     border-radius: 50%;
-    background: #22304A;
-    color: #fff;
-    font-size: 1rem;
+    border: 1.5px solid #2563EB;
+    color: #2563EB;
+    background: transparent;
+    padding: 0;
   }
 
-  /* Events list */
+  /* Events as left-accented colored chips, 1 line */
   .cal-event-list {
     list-style: none;
     margin: 0;
-    padding: 7px 10px 10px;
+    padding: 0;
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 3px;
     flex: 1;
+    min-width: 0;
   }
   .cal-event-item {
-    display: flex;
-    align-items: flex-start;
-    gap: 7px;
-    line-height: 1.4;
-  }
-  .cal-dot {
-    flex-shrink: 0;
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: #22304A;
-    margin-top: 7px;
+    max-width: 100%;
+    border-radius: 4px;
+    border-left: 3px solid;
+    overflow: hidden;
   }
   .cal-event-link {
+    display: block;
     font-family: 'Inter', system-ui, sans-serif;
-    font-size: 0.92rem;
+    font-size: 0.72rem;
     font-weight: 500;
-    color: #22304A;
+    color: #1F2937;
     text-decoration: none;
+    padding: 2px 6px;
+    white-space: nowrap;
     overflow: hidden;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    transition: color 0.12s ease;
-    word-break: break-word;
+    text-overflow: ellipsis;
+    transition: filter 0.15s ease;
   }
-  .cal-event-link:hover {
-    color: #1A2636;
-    text-decoration: underline;
-  }
+  .cal-event-link:hover { filter: brightness(0.94); text-decoration: none; }
+  .cal-cell[data-date] { cursor: pointer; }
   .cal-more {
     font-family: 'Inter', system-ui, sans-serif;
-    font-size: 0.8rem;
-    font-weight: 700;
-    color: #B6C3D6;
-    letter-spacing: 0.02em;
-    padding: 2px 10px 3px;
+    font-size: 0.68rem;
+    font-weight: 600;
+    color: #6B7280;
+    padding: 2px 4px 0;
   }
 
   @media (max-width: 640px) {
-    .cal-cell {
-      min-height: 68px;
-    }
-    .cal-day-num {
-      font-size: 0.7rem;
-    }
-    .cal-event-link {
-      font-size: 0.56rem;
-      -webkit-line-clamp: 1;
-    }
+    .cal-grid { gap: 3px; }
+    .cal-cell { min-height: 72px; padding: 4px 4px 6px; border-radius: 5px; }
+    .cal-day-num-wrap { margin-bottom: 2px; min-height: 18px; }
+    .cal-day-num { font-size: 0.7rem; }
+    .cal-cell.is-today .cal-day-num { width: 18px; height: 18px; font-size: 0.6rem; border-width: 1px; }
+    .cal-event-item { border-left-width: 2px; }
+    .cal-event-link { font-size: 0.55rem; padding: 1px 4px; }
+    .cal-weekday { font-size: 0.6rem; padding: 4px 0; }
   }
 </style>
 
@@ -209,6 +213,23 @@ const BASE_URL = import.meta.env.BASE_URL;
 
   function escHtml(str) {
     return (str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  // Pastel chip palette: bg + left-accent border
+  const CHIP_PALETTE = [
+    { bg: '#FEF3C7', border: '#D97706' }, // amber
+    { bg: '#D1FAE5', border: '#059669' }, // emerald
+    { bg: '#DBEAFE', border: '#2563EB' }, // blue
+    { bg: '#EDE9FE', border: '#7C3AED' }, // violet
+    { bg: '#FFE4E6', border: '#E11D48' }, // rose
+    { bg: '#FEF9C3', border: '#CA8A04' }, // yellow
+    { bg: '#CCFBF1', border: '#0D9488' }, // teal
+  ];
+  function chipColor(key) {
+    const s = String(key || '');
+    let h = 0;
+    for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0;
+    return CHIP_PALETTE[Math.abs(h) % CHIP_PALETTE.length];
   }
 
   function renderCalendar() {
@@ -247,8 +268,11 @@ const BASE_URL = import.meta.env.BASE_URL;
     const todayD = today.getDate();
 
     for (let d = 1; d <= daysInMonth; d++) {
+      const cellDate    = new Date(year, month, d);
+      const weekdayIdx  = (cellDate.getDay() + 6) % 7; // 0=Mon..6=Sun
+      const isWeekend   = weekdayIdx >= 5;
       const isToday = todayY === year && todayM === month && todayD === d;
-      const isPast  = new Date(year, month, d) < new Date(todayY, todayM, todayD);
+      const isPast  = cellDate < new Date(todayY, todayM, todayD);
       const dayEvs  = byDay[d] || [];
 
       const classes = [
@@ -257,20 +281,20 @@ const BASE_URL = import.meta.env.BASE_URL;
         isPast  ? 'is-past'  : '',
       ].filter(Boolean).join(' ');
 
-      // Day number header
-      const dayHeader = `<div class=\"cal-day-header\"><span class=\"cal-day-num\">${d}</span></div>`;
+      // Day number — top-left, plain Inter
+      const dayHeader = `<div class=\"cal-day-num-wrap\"><span class=\"cal-day-num\">${d}</span></div>`;
 
-      // Event dot-list items (max 5, then "+N more")
-      const MAX_VISIBLE = 5;
+      // Event chips (max 4, then "+N more"), each with palette color
+      const MAX_VISIBLE = 4;
       const visible = dayEvs.slice(0, MAX_VISIBLE);
       const extra   = dayEvs.length - MAX_VISIBLE;
 
-      const items = visible.map((ev) =>
-        `<li class=\"cal-event-item\">` +
-        `<span class=\"cal-dot\"></span>` +
-        `<a href=\"${siteBaseUrl}events/${escHtml(ev.slug)}/\" class=\"cal-event-link\" title=\"${escHtml(ev.name)}\">${escHtml(ev.name)}</a>` +
-        `</li>`
-      ).join('');
+      const items = visible.map((ev) => {
+        const c = chipColor(ev.slug || ev.id || ev.name);
+        return `<li class=\"cal-event-item\" style=\"background:${c.bg};border-left-color:${c.border}\">` +
+          `<a href=\"${siteBaseUrl}events/${escHtml(ev.slug)}/\" class=\"cal-event-link\" title=\"${escHtml(ev.name)}\">${escHtml(ev.name)}</a>` +
+          `</li>`;
+      }).join('');
 
       const moreRow = extra > 0
         ? `<li class=\"cal-more\">+${extra} more</li>`
@@ -280,11 +304,21 @@ const BASE_URL = import.meta.env.BASE_URL;
         ? `<ul class=\"cal-event-list\">${items}${moreRow}</ul>`
         : '';
 
-      html += `<div class=\"${classes}\">${dayHeader}${list}</div>`;
+      const dateStr  = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      const dateAttr = dayEvs.length > 0 ? ` data-date=\"${dateStr}\"` : '';
+      html += `<div class=\"${classes}\"${dateAttr}>${dayHeader}${list}</div>`;
     }
 
     document.getElementById('calendar-cells').innerHTML = html;
   }
+
+  // Delegated click: tap a day with events → home page filtered to that date
+  document.getElementById('calendar-cells').addEventListener('click', (e) => {
+    if (e.target.closest('.cal-event-link')) return; // event chip handles its own nav
+    const cell = e.target.closest('.cal-cell[data-date]');
+    if (!cell) return;
+    window.location.href = `${siteBaseUrl}?date=${cell.dataset.date}`;
+  });
 
   document.getElementById('prev-month').addEventListener('click', () => {
     month--;

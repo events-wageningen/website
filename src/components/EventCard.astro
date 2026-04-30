@@ -52,18 +52,8 @@ const priceColor: Record<Event["price"], string> = {
     </div>
 
     <!-- Name -->
-    <h2 class="text-xl font-bold leading-snug text-gray-900">
-      {event.url ? (
-        <a
-          href={event.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          class="hover:underline"
-          data-no-modal
-        >
-          {event.name}
-        </a>
-      ) : event.name}
+    <h2 class="text-xl leading-snug text-gray-900" style="font-family:'DM Serif Display','Playfair Display',Georgia,serif;font-weight:400;letter-spacing:-0.01em">
+      {event.name}
     </h2>
 
     <!-- Description -->
@@ -122,8 +112,8 @@ const priceColor: Record<Event["price"], string> = {
           target="_blank"
           rel="noopener noreferrer"
           data-no-modal
-          class="inline-block rounded-full px-4 py-1.5 text-sm font-semibold text-white transition hover:opacity-90"
-          style="background-color:#4F7296"
+          class="inline-block rounded-full px-4 py-1.5 text-base text-white transition hover:opacity-90"
+          style="background-color:#1E3550;font-family:'DM Serif Display','Playfair Display',Georgia,serif;font-weight:400;letter-spacing:0.01em"
         >
           Link to event organizers →
         </a>

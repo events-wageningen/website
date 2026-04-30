@@ -19,20 +19,18 @@ const pastEvents = events
 ---
 
 
-<header class="flex items-center justify-center gap-8 bg-white border-b border-gray-200 shadow-sm" style="height:120px">
-  <div class="flex-1 flex justify-end">
-    <a
-      href={`${import.meta.env.BASE_URL}`}
-      class="block h-full py-4 transition-transform duration-300 hover:scale-105"
-      aria-label="Back to homepage"
-    >
-      <img
-        src={`${import.meta.env.BASE_URL}logo.jpg`}
-        alt="Events Wageningen"
-        class="h-24 w-auto object-contain"
-      />
-    </a>
-  </div>
+<header class="flex items-center justify-center bg-white border-b border-gray-200 shadow-sm" style="height:120px">
+  <a
+    href={`${import.meta.env.BASE_URL}`}
+    class="block py-4 transition-transform duration-300 hover:scale-105"
+    aria-label="Back to homepage"
+  >
+    <img
+      src={`${import.meta.env.BASE_URL}logo.jpg`}
+      alt="Events Wageningen"
+      class="h-24 w-auto object-contain"
+    />
+  </a>
 </header>
 
 <main class="mx-auto max-w-5xl px-4 py-10">
@@ -41,9 +39,10 @@ const pastEvents = events
   <div class="mb-4 flex justify-center gap-3">
     <button
       id="filter-toggle"
-      class="flex items-center gap-2 rounded-full border border-gray-300 bg-white px-10 py-2.5 text-sm font-semibold text-gray-700 shadow-sm transition-all duration-200 hover:border-slate-400 hover:text-slate-700 hover:shadow-md"
+      class="flex items-center gap-3 rounded-full border border-gray-300 bg-white px-6 py-2.5 text-xl text-gray-800 shadow-sm transition-all duration-200 hover:border-slate-400 hover:text-slate-900 hover:shadow-md"
+      style="font-family:'DM Serif Display','Playfair Display',Georgia,serif;font-weight:400;letter-spacing:0.01em"
     >
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <line x1="4" y1="6" x2="20" y2="6"/>
         <line x1="8" y1="12" x2="16" y2="12"/>
         <line x1="11" y1="18" x2="13" y2="18"/>
@@ -164,7 +163,7 @@ const pastEvents = events
       <>
         {upcomingEvents.length > 0 && (
           <section id="section-upcoming">
-            <h2 class="mb-6 text-2xl font-extrabold flex items-center gap-3" style="color:#1E3A52">
+            <h2 class="mb-6 text-3xl flex items-center gap-3" style="color:#1E3A52;font-family:'DM Serif Display','Playfair Display',Georgia,serif;font-weight:400;letter-spacing:-0.01em">
               <span class="block h-7 w-1.5 rounded-full flex-shrink-0" style="background:#4F7296"></span>
               Upcoming events
             </h2>
@@ -178,7 +177,7 @@ const pastEvents = events
 
         {pastEvents.length > 0 && (
           <section id="section-past" class="mt-14">
-            <h2 class="mb-6 text-2xl font-extrabold flex items-center gap-3" style="color:#7A93A8">
+            <h2 class="mb-6 text-3xl flex items-center gap-3" style="color:#7A93A8;font-family:'DM Serif Display','Playfair Display',Georgia,serif;font-weight:400;letter-spacing:-0.01em">
               <span class="block h-7 w-1.5 rounded-full flex-shrink-0" style="background:#7A93A8"></span>
               Past events
             </h2>
@@ -215,7 +214,7 @@ const pastEvents = events
           <time id="modal-time" class="text-sm font-semibold uppercase tracking-wide text-emerald-600"></time>
           <span id="modal-price" class="rounded-full px-2.5 py-0.5 text-xs font-semibold"></span>
         </div>
-        <h2 id="modal-name" class="text-2xl font-bold text-gray-900"></h2>
+        <h2 id="modal-name" class="text-3xl text-gray-900" style="font-family:'DM Serif Display','Playfair Display',Georgia,serif;font-weight:400;letter-spacing:-0.01em"></h2>
         <p id="modal-location" class="text-sm text-gray-500"></p>
         <div id="modal-maps-btn" style="display:none;position:relative;margin-top:0.25rem;border-radius:0.75rem;overflow:hidden">
           <div id="modal-map" style="height:260px"></div>
@@ -263,8 +262,8 @@ const pastEvents = events
               href="#"
               target="_blank"
               rel="noopener noreferrer"
-              class="inline-block rounded-full px-4 py-1.5 text-sm font-semibold text-white transition hover:opacity-90"
-              style="background-color:#4F7296;display:none"
+              class="inline-block rounded-full px-4 py-1.5 text-base text-white transition hover:opacity-90"
+              style="background-color:#1E3550;display:none;font-family:'DM Serif Display','Playfair Display',Georgia,serif;font-weight:400;letter-spacing:0.01em"
             >Link to event organizers →</a>
           </div>
         </div>
@@ -655,6 +654,17 @@ const pastEvents = events
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
   });
+
+  // ── Date prefilter from ?date=YYYY-MM-DD (set by calendar day click) ───────
+  {
+    const params = new URLSearchParams(window.location.search);
+    const dateParam = params.get('date');
+    if (dateParam && /^\d{4}-\d{2}-\d{2}$/.test(dateParam)) {
+      filterFrom.value = dateParam;
+      filterTo.value   = dateParam;
+      applyFilter();
+    }
+  }
 
   // ── Auto-open on direct event URL ──────────────────────────────────────────
   // initialSlug is set when rendering src/pages/events/[slug].astro
