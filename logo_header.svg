@@ -1,0 +1,45 @@
+<svg viewBox="0 0 480 90" width="480" height="90" xmlns="http://www.w3.org/2000/svg">
+
+  <!-- Orange wheel icon, 90x90 -->
+  <circle cx="45" cy="45" r="41" fill="#C05000"/>
+  <circle cx="43" cy="43" r="38" fill="#F07820"/>
+  <ellipse cx="30" cy="32" rx="13" ry="11" fill="#FFB84A" opacity="0.55"/>
+
+  <g stroke="#A04000" stroke-width="1.9" stroke-linecap="round">
+    <line x1="45.0" y1="39.5" x2="45.0" y2="11.0"/>
+    <line x1="47.8" y1="40.2" x2="62.0" y2="15.6"/>
+    <line x1="49.8" y1="42.2" x2="74.4" y2="28.0"/>
+    <line x1="50.5" y1="45.0" x2="79.0" y2="45.0"/>
+    <line x1="49.8" y1="47.8" x2="74.4" y2="62.0"/>
+    <line x1="47.8" y1="49.8" x2="62.0" y2="74.4"/>
+    <line x1="45.0" y1="50.5" x2="45.0" y2="79.0"/>
+    <line x1="42.2" y1="49.8" x2="28.0" y2="74.4"/>
+    <line x1="40.2" y1="47.8" x2="15.6" y2="62.0"/>
+    <line x1="39.5" y1="45.0" x2="11.0" y2="45.0"/>
+    <line x1="40.2" y1="42.2" x2="15.6" y2="28.0"/>
+    <line x1="42.2" y1="40.2" x2="28.0" y2="15.6"/>
+  </g>
+
+  <circle cx="45" cy="45" r="5.5" fill="#A04000"/>
+  <circle cx="45" cy="45" r="2.5" fill="#7A2E00"/>
+
+  <!-- Stem -->
+  <rect x="43" y="3.5" width="3" height="7" rx="1.5" fill="#6B4423"/>
+  <!-- Leaf -->
+  <ellipse cx="50" cy="6" rx="9" ry="3.5" fill="#4A7C1E" transform="rotate(-40 50 6)"/>
+  <ellipse cx="53" cy="4.5" rx="6" ry="2.5" fill="#6AAD2E" transform="rotate(-40 53 4.5)"/>
+
+  <!-- Text -->
+  <text x="100" y="36"
+        font-family="Georgia, 'Times New Roman', serif"
+        font-size="30"
+        font-weight="700"
+        fill="#1A1A1A">Events</text>
+
+  <text x="100" y="65"
+        font-family="Georgia, 'Times New Roman', serif"
+        font-size="21"
+        font-weight="400"
+        fill="#F07820"
+        letter-spacing="4">WAGENINGEN</text>
+</svg>
