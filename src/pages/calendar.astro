@@ -7,22 +7,28 @@ const BASE_URL = import.meta.env.BASE_URL;
 ---
 
 <Layout title="Events Calendar · Events Wageningen">
-  <header class="relative flex items-center justify-center bg-white border-b border-gray-200 shadow-sm" style="height:140px">
-    <!-- Back to list -->
-    <a
-      href={BASE_URL}
-      class="absolute left-4 top-1/2 -translate-y-1/2 flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-600 shadow-sm transition-all duration-200 hover:bg-slate-50 hover:border-slate-400 hover:text-slate-900 hover:shadow-md"
-      aria-label="All events list"
-    >
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <polyline points="15 18 9 12 15 6"/>
-      </svg>
-      <span class="hidden sm:inline">All events</span>
-    </a>
-    <!-- Logo links to home -->
-    <a href={BASE_URL} class="block h-full py-4 transition-transform duration-300 hover:scale-105" aria-label="Back to homepage">
-      <img src={`${BASE_URL}logo.jpg`} alt="Events Wageningen" class="h-full w-auto object-contain" />
-    </a>
+  <header class="flex items-center justify-center gap-8 bg-white border-b border-gray-200 shadow-sm" style="height:120px">
+    <div class="flex-1 flex justify-end">
+      <a
+        href={BASE_URL}
+        class="block h-full py-4 transition-transform duration-300 hover:scale-105"
+        aria-label="Back to homepage"
+      >
+        <img src={`${BASE_URL}logo.jpg`} alt="Events Wageningen" class="h-16 w-auto object-contain" />
+      </a>
+    </div>
+    <div class="flex-1 flex justify-start">
+      <a
+        href={BASE_URL}
+        class="mr-6 flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-600 shadow-sm transition-all duration-200 hover:bg-slate-50 hover:border-slate-400 hover:text-slate-900 hover:shadow-md"
+        aria-label="All events list"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polyline points="15 18 9 12 15 6"/>
+        </svg>
+        <span class="hidden sm:inline">All events</span>
+      </a>
+    </div>
   </header>
 
   <main class="mx-auto max-w-5xl px-4 py-10">
@@ -70,18 +76,19 @@ const BASE_URL = import.meta.env.BASE_URL;
 
   /* Each day box */
   .cal-cell {
-    min-height: 110px;
-    border-radius: 10px;
-    border: 1px solid #e2e8f0;
+    min-height: 120px;
+    border-radius: 12px;
+    border: 1.5px solid #101624;
     background: #fff;
     display: flex;
     flex-direction: column;
     overflow: hidden;
     transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    box-shadow: 0 2px 10px rgba(26,38,54,0.04);
   }
   .cal-cell:hover {
-    border-color: #94afc7;
-    box-shadow: 0 2px 10px rgba(79,114,150,0.1);
+    border-color: #22304A;
+    box-shadow: 0 4px 18px rgba(26,38,54,0.10);
   }
   .cal-cell.is-empty {
     background: transparent;
@@ -89,84 +96,90 @@ const BASE_URL = import.meta.env.BASE_URL;
     pointer-events: none;
   }
   .cal-cell.is-today {
-    border-color: #4F7296;
-    box-shadow: 0 0 0 1.5px #4F7296;
+    border-color: #22304A;
+    box-shadow: 0 0 0 2px #22304A;
   }
   .cal-cell.is-past {
-    opacity: 0.5;
+    opacity: 0.45;
   }
 
   /* Day number header band */
   .cal-day-header {
-    padding: 5px 8px 4px;
-    border-bottom: 1px solid #f1f5f9;
+    padding: 7px 10px 5px;
+    border-bottom: 1px solid #e5e7eb;
     display: flex;
     align-items: center;
     justify-content: flex-end;
+    background: #f8fafc;
   }
   .cal-day-num {
-    font-size: 0.8rem;
-    font-weight: 700;
-    color: #64748b;
-    line-height: 1;
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #101624;
+    letter-spacing: -0.01em;
+    line-height: 1.1;
   }
   .cal-cell.is-today .cal-day-num {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 22px;
-    height: 22px;
+    width: 26px;
+    height: 26px;
     border-radius: 50%;
-    background: #4F7296;
+    background: #22304A;
     color: #fff;
-    font-size: 0.72rem;
+    font-size: 1rem;
   }
 
   /* Events list */
   .cal-event-list {
     list-style: none;
     margin: 0;
-    padding: 4px 6px 5px;
+    padding: 7px 10px 10px;
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 4px;
     flex: 1;
   }
   .cal-event-item {
     display: flex;
-    align-items: baseline;
-    gap: 4px;
-    line-height: 1.3;
+    align-items: flex-start;
+    gap: 7px;
+    line-height: 1.4;
   }
   .cal-dot {
     flex-shrink: 0;
-    width: 5px;
-    height: 5px;
+    width: 7px;
+    height: 7px;
     border-radius: 50%;
-    background: #4F7296;
-    margin-top: 3px;
+    background: #22304A;
+    margin-top: 7px;
   }
   .cal-event-link {
-    font-size: 0.63rem;
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 0.92rem;
     font-weight: 500;
-    color: #374151;
+    color: #22304A;
     text-decoration: none;
     overflow: hidden;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     transition: color 0.12s ease;
+    word-break: break-word;
   }
   .cal-event-link:hover {
-    color: #4F7296;
+    color: #1A2636;
     text-decoration: underline;
   }
   .cal-more {
-    font-size: 0.58rem;
-    font-weight: 600;
-    color: #94a3b8;
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #B6C3D6;
     letter-spacing: 0.02em;
-    padding: 1px 6px 3px;
+    padding: 2px 10px 3px;
   }
 
   @media (max-width: 640px) {
@@ -243,29 +256,29 @@ const BASE_URL = import.meta.env.BASE_URL;
       ].filter(Boolean).join(' ');
 
       // Day number header
-      const dayHeader = `<div class="cal-day-header"><span class="cal-day-num">${d}</span></div>`;
+      const dayHeader = `<div class=\"cal-day-header\"><span class=\"cal-day-num\">${d}</span></div>`;
 
-      // Event dot-list items (max 4, then "+N more")
-      const MAX_VISIBLE = 4;
+      // Event dot-list items (max 5, then "+N more")
+      const MAX_VISIBLE = 5;
       const visible = dayEvs.slice(0, MAX_VISIBLE);
       const extra   = dayEvs.length - MAX_VISIBLE;
 
       const items = visible.map((ev) =>
-        `<li class="cal-event-item">` +
-        `<span class="cal-dot"></span>` +
-        `<a href="${siteBaseUrl}events/${escHtml(ev.slug)}/" class="cal-event-link" title="${escHtml(ev.name)}">${escHtml(ev.name)}</a>` +
+        `<li class=\"cal-event-item\">` +
+        `<span class=\"cal-dot\"></span>` +
+        `<a href=\"${siteBaseUrl}events/${escHtml(ev.slug)}/\" class=\"cal-event-link\" title=\"${escHtml(ev.name)}\">${escHtml(ev.name)}</a>` +
         `</li>`
       ).join('');
 
       const moreRow = extra > 0
-        ? `<li class="cal-more">+${extra} more</li>`
+        ? `<li class=\"cal-more\">+${extra} more</li>`
         : '';
 
       const list = (items || moreRow)
-        ? `<ul class="cal-event-list">${items}${moreRow}</ul>`
+        ? `<ul class=\"cal-event-list\">${items}${moreRow}</ul>`
         : '';
 
-      html += `<div class="${classes}">${dayHeader}${list}</div>`;
+      html += `<div class=\"${classes}\">${dayHeader}${list}</div>`;
     }
 
     document.getElementById('calendar-cells').innerHTML = html;

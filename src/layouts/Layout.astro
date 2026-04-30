@@ -18,15 +18,42 @@ const { title } = Astro.props;
     <title>{title}</title>
     <style is:global>
       :root {
-        --brand: #4F7296;        /* muted steel blue */
-        --brand-dark: #1E3A52;   /* deep navy */
-        --brand-mid: #3A6284;    /* mid steel blue */
-        --brand-hover: #365978;  /* hover state */
+        --brand: #1A2636;        /* much darker blue */
+        --brand-dark: #101624;   /* almost black navy */
+        --brand-mid: #22304A;    /* mid dark blue */
+        --brand-hover: #2B3B54;  /* hover state */
         --brand-bg: #F5F7FA;     /* off-white cool */
-        --brand-border: #C5D6E8; /* light blue-gray border */
+        --brand-border: #B6C3D6; /* lighter border */
       }
       html { scroll-behavior: smooth; }
-      body { font-family: 'Inter', system-ui, sans-serif; }
+
+      body {
+        font-family: 'Inter', system-ui, sans-serif;
+        min-height: 100vh;
+        background: var(--brand-bg);
+        position: relative;
+        z-index: 0;
+      }
+
+      /* Trippy animated SVG background */
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        z-index: -1;
+        pointer-events: none;
+        width: 100vw;
+        height: 100vh;
+        background: url('data:image/svg+xml;utf8,<svg width="100%25" height="100%25" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="g1" x1="0" y1="0" x2="1" y2="1"><stop stop-color="%23F5F7FA" offset="0%25"/><stop stop-color="%231A2636" offset="100%25"/></linearGradient><radialGradient id="r1" cx="80%" cy="20%" r="1.2"><stop stop-color="%2322304A" stop-opacity="0.13" offset="0%25"/><stop stop-color="%23F5F7FA" stop-opacity="0" offset="100%25"/></radialGradient><radialGradient id="r2" cx="20%" cy="80%" r="1.1"><stop stop-color="%231A2636" stop-opacity="0.10" offset="0%25"/><stop stop-color="%23F5F7FA" stop-opacity="0" offset="100%25"/></radialGradient></defs><rect width="100%25" height="100%25" fill="url(%23g1)"/><circle id="c1" cx="80%" cy="20%" r="400" fill="url(%23r1)"><animate attributeName="cy" values="20%;80%;20%" dur="12s" repeatCount="indefinite"/></circle><circle id="c2" cx="20%" cy="80%" r="350" fill="url(%23r2)"><animate attributeName="cx" values="20%;80%;20%" dur="18s" repeatCount="indefinite"/></circle></svg>');
+        background-size: cover;
+        background-repeat: no-repeat;
+        animation: bg-move 18s linear infinite alternate;
+        opacity: 0.9;
+      }
+      @keyframes bg-move {
+        0% { filter: hue-rotate(0deg) blur(0.5px); }
+        100% { filter: hue-rotate(30deg) blur(1.5px); }
+      }
 
       /* Card reveal animation (triggered by IntersectionObserver) */
       .card-reveal {
