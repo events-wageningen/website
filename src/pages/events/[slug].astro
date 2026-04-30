@@ -1,0 +1,26 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import EventsPageContent from "@/components/EventsPageContent.astro";
+import { getEvents } from "@/lib/events";
+import type { Event } from "@/types/event";
+
+export async function getStaticPaths() {
+  const events: Event[] = await getEvents();
+  return events
+    .filter((e) => !!e.slug)
+    .map((e) => ({
+      params: { slug: e.slug },
+      props: { eventName: e.name },
+    }));
+}
+
+interface Props {
+  eventName: string;
+}
+const { slug } = Astro.params;
+const { eventName } = Astro.props;
+---
+
+<Layout title={`${eventName} · Events Wageningen`}>
+  <EventsPageContent initialSlug={slug} />
+</Layout>
