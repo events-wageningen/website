@@ -24,15 +24,17 @@ const priceColor: Record<Event["price"], string> = {
 <article
   data-categories={event.category.join(",")}
   data-event-id={event.id}
-  class="event-card flex flex-col gap-3 rounded-2xl border border-gray-200 bg-white shadow-sm transition-shadow hover:shadow-md overflow-hidden cursor-pointer"
+  class="event-card card-reveal group flex flex-col gap-3 rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:border-orange-200 overflow-hidden cursor-pointer"
 >
-  <!-- Event image -->
-  <img
-    src={`${import.meta.env.BASE_URL}images/${event.id}.jpg`}
-    alt={event.name}
-    class="w-full h-40 object-cover"
-    onerror={`this.onerror=null;this.src='${import.meta.env.BASE_URL}default.jpg'`}
-  />
+  <!-- Event image with subtle zoom on hover -->
+  <div class="overflow-hidden">
+    <img
+      src={`${import.meta.env.BASE_URL}images/${event.id}.jpg`}
+      alt={event.name}
+      class="w-full h-40 object-cover transition-transform duration-500 group-hover:scale-105"
+      onerror={`this.onerror=null;this.src='${import.meta.env.BASE_URL}default.jpg'`}
+    />
+  </div>
 
   <div class="flex flex-col gap-3 p-6 pt-3">
     <!-- Date & time -->
@@ -120,7 +122,7 @@ const priceColor: Record<Event["price"], string> = {
           rel="noopener noreferrer"
           data-no-modal
           class="inline-block rounded-full px-4 py-1.5 text-sm font-semibold text-white transition hover:opacity-90"
-          style="background-color:#D1783B"
+          style="background-color:#EA580C"
         >
           Link to event organizers →
         </a>
