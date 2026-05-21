@@ -9,13 +9,17 @@ const { initialSlug } = Astro.props;
 
 const [events, categoriesList] = await Promise.all([getEvents(), getCategories()]);
 const categoryMap = Object.fromEntries(categoriesList.map((c) => [c.id, c])) as Record<string, Category>;
+const parseEventLocalDateTime = (iso: string) => {
+  const parsed = new Date(iso.replace(/(Z|[+-]\d{2}:\d{2})$/, ""));
+  return Number.isNaN(parsed.getTime()) ? new Date(iso) : parsed;
+};
 const now = new Date();
 const upcomingEvents = events
-  .filter((e) => new Date(e.startDate) >= now)
-  .sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime());
+  .filter((e) => parseEventLocalDateTime(e.startDate) >= now)
+  .sort((a, b) => parseEventLocalDateTime(a.startDate).getTime() - parseEventLocalDateTime(b.startDate).getTime());
 const pastEvents = events
-  .filter((e) => new Date(e.startDate) < now)
-  .sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime());
+  .filter((e) => parseEventLocalDateTime(e.startDate) < now)
+  .sort((a, b) => parseEventLocalDateTime(b.startDate).getTime() - parseEventLocalDateTime(a.startDate).getTime());
 ---
 
 
@@ -324,7 +328,7 @@ const pastEvents = events
       let cityOk = true;
       let priceOk = true;
       if (ev) {
-        const start = new Date(ev.startDate);
+        const start = parseEventLocalDateTimeForDisplay(ev.startDate);
         if (from && start < from) dateOk = false;
         if (to   && start > to)   dateOk = false;
         if (selectedCities.size > 0 && !selectedCities.has(ev.location.city)) cityOk = false;
@@ -417,13 +421,19 @@ const pastEvents = events
     donation: 'bg-amber-100 text-amber-700',
   };
 
+  const TZ_SUFFIX_RE = /(Z|[+-]\d{2}:\d{2})$/;
+  function parseEventLocalDateTimeForDisplay(iso) {
+    const parsed = new Date(String(iso).replace(TZ_SUFFIX_RE, ''));
+    return Number.isNaN(parsed.getTime()) ? new Date(iso) : parsed;
+  }
+
   function fmtDate(iso) {
-    return new Date(iso).toLocaleDateString('en-GB', {
+    return parseEventLocalDateTimeForDisplay(iso).toLocaleDateString('en-GB', {
       weekday: 'short', day: 'numeric', month: 'long', year: 'numeric',
     });
   }
   function fmtTime(iso) {
-    return new Date(iso).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+    return parseEventLocalDateTimeForDisplay(iso).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
   }
 
   // ── Leaflet lazy loader ────────────────────────────────────────────────────
