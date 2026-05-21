@@ -6,6 +6,21 @@ const supabase = createClient(
   import.meta.env.PUBLIC_SUPABASE_ANON_KEY
 );
 
+export interface Category {
+  id: string;
+  label: string;
+  emoji: string;
+}
+
+export async function getCategories(): Promise<Category[]> {
+  const { data, error } = await supabase
+    .from("categories")
+    .select("id, label, emoji")
+    .order("label");
+  if (error) throw new Error(error.message);
+  return data ?? [];
+}
+
 export async function getEvents(): Promise<Event[]> {
   const { data, error } = await supabase
     .from("events")
@@ -30,6 +45,9 @@ export async function getEvents(): Promise<Event[]> {
     url: (row.url as string) ?? "",
     price: row.price as Event["price"],
     status: row.status as Event["status"],
+    ...(row.lat != null ? { lat: row.lat as number } : {}),
+    ...(row.lon != null ? { lon: row.lon as number } : {}),
+    ...(row.creator_telegram_id != null ? { creatorTelegramId: row.creator_telegram_id as number } : {}),
   }));
 }
 

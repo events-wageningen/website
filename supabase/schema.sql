@@ -26,3 +26,15 @@ CREATE POLICY "public_read" ON events
 
 -- Service role (bot, Supabase dashboard) bypasses RLS automatically —
 -- no extra policy needed for INSERT / UPDATE / DELETE.
+
+-- ── Categories ───────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS categories (
+  id    TEXT PRIMARY KEY,
+  label TEXT NOT NULL,
+  emoji TEXT NOT NULL DEFAULT ''
+);
+
+ALTER TABLE categories ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "public_read" ON categories
+  FOR SELECT USING (true);

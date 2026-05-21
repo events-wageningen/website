@@ -1,6 +1,25 @@
 -- Seed data: the 5 events migrated from events.json.
 -- Run AFTER schema.sql in the Supabase SQL editor.
 
+-- ── Categories ────────────────────────────────────────────────────────────────
+INSERT INTO categories (id, label, emoji) VALUES
+  ('music',      'Music',      '🎵'),
+  ('talks',      'Talks',      '🎤'),
+  ('movies',     'Movies',     '🎬'),
+  ('dance',      'Dance',      '💃'),
+  ('workshops',  'Workshops',  '🔧'),
+  ('nature',     'Nature',     '🌿'),
+  ('yoga',       'Yoga',       '🧘'),
+  ('meditation', 'Meditation', '🕯'),
+  ('sport',      'Sport',      '⚽'),
+  ('politics',   'Politics',   '🗳'),
+  ('art',        'Art',        '🎨'),
+  ('games',      'Games',      '🎮'),
+  ('markets',    'Markets',    '🛒'),
+  ('food',       'Food',       '🍕')
+ON CONFLICT (id) DO NOTHING;
+
+
 INSERT INTO events (id, name, slug, description, start_date, end_date, location_name, location_city, category, tags, url, price, status)
 VALUES
 (

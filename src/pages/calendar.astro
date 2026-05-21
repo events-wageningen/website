@@ -1,0 +1,336 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import { getEvents } from "@/lib/events";
+
+const events = await getEvents();
+const BASE_URL = import.meta.env.BASE_URL;
+---
+
+<Layout title="Events Calendar · Events Wageningen">
+  <header class="flex items-center justify-center bg-white border-b border-gray-200 shadow-sm" style="height:120px">
+    <a
+      href={BASE_URL}
+      class="block py-4 transition-transform duration-300 hover:scale-105"
+      aria-label="Back to homepage"
+    >
+      <img src={`${BASE_URL}header.png`} alt="Events Wageningen" class="h-24 w-auto object-contain" />
+    </a>
+  </header>
+
+  <!-- Back to events button above calendar grid -->
+  <div class="flex justify-center mt-6 mb-2">
+    <a
+      href={BASE_URL}
+      class="flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-600 shadow-sm transition-all duration-200 hover:bg-slate-50 hover:border-slate-400 hover:text-slate-900 hover:shadow-md"
+      aria-label="All events list"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+      <span class="hidden sm:inline">All events</span>
+    </a>
+  </div>
+
+  <main class="mx-auto max-w-5xl px-4 py-10">
+    <!-- Month navigation -->
+    <div class="mb-6 flex items-center justify-between gap-4">
+      <button
+        id="prev-month"
+        class="flex h-9 w-9 items-center justify-center rounded-full border border-gray-300 bg-white text-gray-600 shadow-sm transition-all duration-200 hover:border-slate-400 hover:text-slate-700 hover:shadow-md"
+        aria-label="Previous month"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <h1 id="month-title" class="cal-title" style="color:#1E3A52"></h1>
+      <button
+        id="next-month"
+        class="flex h-9 w-9 items-center justify-center rounded-full border border-gray-300 bg-white text-gray-600 shadow-sm transition-all duration-200 hover:border-slate-400 hover:text-slate-700 hover:shadow-md"
+        aria-label="Next month"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+    </div>
+
+    <!-- Weekday headers -->
+    <div class="cal-grid cal-weekday-row mb-2">
+      {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((d, i) => (
+        <div class={`cal-weekday ${i >= 5 ? 'is-weekend' : ''}`}>{d}</div>
+      ))}
+    </div>
+
+    <!-- Calendar cells (filled by JS) -->
+    <div id="calendar-cells" class="cal-grid"></div>
+  </main>
+
+  <footer class="mt-10 border-t border-gray-200 py-6 text-center text-sm text-gray-400">
+    © {new Date().getFullYear()} Events Wageningen
+  </footer>
+</Layout>
+
+<style is:global>
+  /* Month title — serif accent */
+  .cal-title {
+    font-family: 'DM Serif Display', 'Playfair Display', Georgia, serif;
+    font-size: 1.6rem;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+  }
+
+  .cal-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 6px;
+  }
+
+  /* Weekday header row */
+  .cal-weekday {
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #9CA3AF;
+    text-align: center;
+    padding: 6px 0;
+  }
+
+  /* Each day cell — clean Google-Cal style with thin border */
+  .cal-cell {
+    min-height: 130px;
+    border-radius: 8px;
+    border: 1px solid #E5E7EB;
+    background: #FFFFFF;
+    display: flex;
+    flex-direction: column;
+    padding: 6px 8px 8px;
+    transition: box-shadow 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+    overflow: hidden;
+  }
+  .cal-cell:hover {
+    border-color: #CBD5E1;
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+    transform: translateY(-2px);
+  }
+  .cal-cell.is-empty {
+    background: transparent;
+    border-color: transparent;
+    pointer-events: none;
+  }
+  .cal-cell.is-empty:hover { transform: none; box-shadow: none; }
+  .cal-cell.is-past { opacity: 0.78; }
+
+  /* Day number top-left, plain Inter */
+  .cal-day-num-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    margin-bottom: 4px;
+    min-height: 26px;
+  }
+  .cal-day-num {
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #1F2937;
+    line-height: 1;
+    padding: 0 2px;
+  }
+  .cal-cell.is-past .cal-day-num { color: #9CA3AF; }
+  /* Today: outlined circle around number (matches reference) */
+  .cal-cell.is-today .cal-day-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    border: 1.5px solid #2563EB;
+    color: #2563EB;
+    background: transparent;
+    padding: 0;
+  }
+
+  /* Events as left-accented colored chips, 1 line */
+  .cal-event-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    flex: 1;
+    min-width: 0;
+  }
+  .cal-event-item {
+    max-width: 100%;
+    border-radius: 4px;
+    border-left: 3px solid;
+    overflow: hidden;
+  }
+  .cal-event-link {
+    display: block;
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 0.72rem;
+    font-weight: 500;
+    color: #1F2937;
+    text-decoration: none;
+    padding: 2px 6px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: filter 0.15s ease;
+  }
+  .cal-event-link:hover { filter: brightness(0.94); text-decoration: none; }
+  .cal-cell[data-date] { cursor: pointer; }
+  .cal-more {
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 0.68rem;
+    font-weight: 600;
+    color: #6B7280;
+    padding: 2px 4px 0;
+  }
+
+  @media (max-width: 640px) {
+    .cal-grid { gap: 3px; }
+    .cal-cell { min-height: 72px; padding: 4px 4px 6px; border-radius: 5px; }
+    .cal-day-num-wrap { margin-bottom: 2px; min-height: 18px; }
+    .cal-day-num { font-size: 0.7rem; }
+    .cal-cell.is-today .cal-day-num { width: 18px; height: 18px; font-size: 0.6rem; border-width: 1px; }
+    .cal-event-item { border-left-width: 2px; }
+    .cal-event-link { font-size: 0.55rem; padding: 1px 4px; }
+    .cal-weekday { font-size: 0.6rem; padding: 4px 0; }
+  }
+</style>
+
+<script define:vars={{ eventsData: events, siteBaseUrl: BASE_URL }}>
+  let year  = new Date().getFullYear();
+  let month = new Date().getMonth(); // 0-indexed
+
+  const MONTH_NAMES = [
+    "January","February","March","April","May","June",
+    "July","August","September","October","November","December"
+  ];
+
+  function escHtml(str) {
+    return (str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  // Pastel chip palette: bg + left-accent border
+  const CHIP_PALETTE = [
+    { bg: '#FEF3C7', border: '#D97706' }, // amber
+    { bg: '#D1FAE5', border: '#059669' }, // emerald
+    { bg: '#DBEAFE', border: '#2563EB' }, // blue
+    { bg: '#EDE9FE', border: '#7C3AED' }, // violet
+    { bg: '#FFE4E6', border: '#E11D48' }, // rose
+    { bg: '#FEF9C3', border: '#CA8A04' }, // yellow
+    { bg: '#CCFBF1', border: '#0D9488' }, // teal
+  ];
+  function chipColor(key) {
+    const s = String(key || '');
+    let h = 0;
+    for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0;
+    return CHIP_PALETTE[Math.abs(h) % CHIP_PALETTE.length];
+  }
+
+  function renderCalendar() {
+    document.getElementById('month-title').textContent = `${MONTH_NAMES[month]} ${year}`;
+
+    // First weekday of month (Mon-first: 0=Mon, 6=Sun)
+    const firstDayRaw   = new Date(year, month, 1).getDay(); // 0=Sun
+    const startOffset   = (firstDayRaw + 6) % 7;
+    const daysInMonth   = new Date(year, month + 1, 0).getDate();
+    const today         = new Date();
+
+    // Gather events for this month
+    const monthEvents = eventsData.filter((ev) => {
+      const d = new Date(ev.startDate);
+      return d.getFullYear() === year && d.getMonth() === month;
+    });
+
+    // Group by day-of-month
+    const byDay = {};
+    monthEvents.forEach((ev) => {
+      const d = new Date(ev.startDate).getDate();
+      if (!byDay[d]) byDay[d] = [];
+      byDay[d].push(ev);
+    });
+
+    let html = '';
+
+    // Empty leading cells
+    for (let i = 0; i < startOffset; i++) {
+      html += '<div class="cal-cell is-empty"></div>';
+    }
+
+    // Day cells
+    const todayY = today.getFullYear();
+    const todayM = today.getMonth();
+    const todayD = today.getDate();
+
+    for (let d = 1; d <= daysInMonth; d++) {
+      const cellDate    = new Date(year, month, d);
+      const weekdayIdx  = (cellDate.getDay() + 6) % 7; // 0=Mon..6=Sun
+      const isWeekend   = weekdayIdx >= 5;
+      const isToday = todayY === year && todayM === month && todayD === d;
+      const isPast  = cellDate < new Date(todayY, todayM, todayD);
+      const dayEvs  = byDay[d] || [];
+
+      const classes = [
+        'cal-cell',
+        isToday ? 'is-today' : '',
+        isPast  ? 'is-past'  : '',
+      ].filter(Boolean).join(' ');
+
+      // Day number — top-left, plain Inter
+      const dayHeader = `<div class=\"cal-day-num-wrap\"><span class=\"cal-day-num\">${d}</span></div>`;
+
+      // Event chips (max 4, then "+N more"), each with palette color
+      const MAX_VISIBLE = 4;
+      const visible = dayEvs.slice(0, MAX_VISIBLE);
+      const extra   = dayEvs.length - MAX_VISIBLE;
+
+      const items = visible.map((ev) => {
+        const c = chipColor(ev.slug || ev.id || ev.name);
+        return `<li class=\"cal-event-item\" style=\"background:${c.bg};border-left-color:${c.border}\">` +
+          `<a href=\"${siteBaseUrl}events/${escHtml(ev.slug)}/\" class=\"cal-event-link\" title=\"${escHtml(ev.name)}\">${escHtml(ev.name)}</a>` +
+          `</li>`;
+      }).join('');
+
+      const moreRow = extra > 0
+        ? `<li class=\"cal-more\">+${extra} more</li>`
+        : '';
+
+      const list = (items || moreRow)
+        ? `<ul class=\"cal-event-list\">${items}${moreRow}</ul>`
+        : '';
+
+      const dateStr  = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      const dateAttr = dayEvs.length > 0 ? ` data-date=\"${dateStr}\"` : '';
+      html += `<div class=\"${classes}\"${dateAttr}>${dayHeader}${list}</div>`;
+    }
+
+    document.getElementById('calendar-cells').innerHTML = html;
+  }
+
+  // Delegated click: tap a day with events → home page filtered to that date
+  document.getElementById('calendar-cells').addEventListener('click', (e) => {
+    if (e.target.closest('.cal-event-link')) return; // event chip handles its own nav
+    const cell = e.target.closest('.cal-cell[data-date]');
+    if (!cell) return;
+    window.location.href = `${siteBaseUrl}?date=${cell.dataset.date}`;
+  });
+
+  document.getElementById('prev-month').addEventListener('click', () => {
+    month--;
+    if (month < 0) { month = 11; year--; }
+    renderCalendar();
+  });
+
+  document.getElementById('next-month').addEventListener('click', () => {
+    month++;
+    if (month > 11) { month = 0; year++; }
+    renderCalendar();
+  });
+
+  renderCalendar();
+</script>
