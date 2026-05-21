@@ -34,6 +34,12 @@ const siteBaseUrl = "/";
     return CHIP_PALETTE[Math.abs(h) % CHIP_PALETTE.length];
   }
 
+  const TZ_SUFFIX_RE = /(Z|[+-]\d{2}:\d{2})$/;
+  function parseEventLocalDateTime(iso) {
+    const parsed = new Date(String(iso).replace(TZ_SUFFIX_RE, ''));
+    return Number.isNaN(parsed.getTime()) ? new Date(iso) : parsed;
+  }
+
   function renderCalendar() {
     document.getElementById('month-title').textContent = `${MONTH_NAMES[month]} ${year}`;
 
@@ -45,14 +51,14 @@ const siteBaseUrl = "/";
 
     // Gather events for this month
     const monthEvents = eventsData.filter((ev) => {
-      const d = new Date(ev.startDate);
+      const d = parseEventLocalDateTime(ev.startDate);
       return d.getFullYear() === year && d.getMonth() === month;
     });
 
     // Group by day-of-month
     const byDay = {};
     monthEvents.forEach((ev) => {
-      const d = new Date(ev.startDate).getDate();
+      const d = parseEventLocalDateTime(ev.startDate).getDate();
       if (!byDay[d]) byDay[d] = [];
       byDay[d].push(ev);
     });
