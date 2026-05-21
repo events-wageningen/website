@@ -6,6 +6,14 @@ const supabase = createClient(
   import.meta.env.PUBLIC_SUPABASE_ANON_KEY
 );
 
+const TZ_SUFFIX_RE = /(Z|[+-]\d{2}:\d{2})$/;
+
+function parseEventLocalDateTime(isoDate: string): Date {
+  const localIso = isoDate.replace(TZ_SUFFIX_RE, "");
+  const parsed = new Date(localIso);
+  return Number.isNaN(parsed.getTime()) ? new Date(isoDate) : parsed;
+}
+
 export interface Category {
   id: string;
   label: string;
@@ -52,7 +60,7 @@ export async function getEvents(): Promise<Event[]> {
 }
 
 export function formatDate(isoDate: string): string {
-  return new Date(isoDate).toLocaleDateString("en-GB", {
+  return parseEventLocalDateTime(isoDate).toLocaleDateString("en-GB", {
     weekday: "long",
     year: "numeric",
     month: "long",
@@ -61,7 +69,7 @@ export function formatDate(isoDate: string): string {
 }
 
 export function formatTime(isoDate: string): string {
-  return new Date(isoDate).toLocaleTimeString("en-GB", {
+  return parseEventLocalDateTime(isoDate).toLocaleTimeString("en-GB", {
     hour: "2-digit",
     minute: "2-digit",
   });
