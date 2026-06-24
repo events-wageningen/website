@@ -14,11 +14,15 @@ const parseEventLocalDateTime = (iso: string) => {
   return Number.isNaN(parsed.getTime()) ? new Date(iso) : parsed;
 };
 const now = new Date();
+const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
 const upcomingEvents = events
   .filter((e) => parseEventLocalDateTime(e.startDate) >= now)
   .sort((a, b) => parseEventLocalDateTime(a.startDate).getTime() - parseEventLocalDateTime(b.startDate).getTime());
 const pastEvents = events
-  .filter((e) => parseEventLocalDateTime(e.startDate) < now)
+  .filter((e) => {
+    const start = parseEventLocalDateTime(e.startDate);
+    return start < now && start >= oneWeekAgo;
+  })
   .sort((a, b) => parseEventLocalDateTime(b.startDate).getTime() - parseEventLocalDateTime(a.startDate).getTime());
 ---
 
