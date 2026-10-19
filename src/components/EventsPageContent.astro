@@ -120,12 +120,12 @@ const pastEvents = events
     <div class="border-t border-gray-100 pt-5 pb-5">
       <p class="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">Price</p>
       <div class="flex flex-wrap gap-2">
-        {(["free", "paid", "donation"] as const).map((p) => (
+        {(["free", "paid", "donation", "unknown"] as const).map((p) => (
           <button
             data-price={p}
             class="price-btn rounded-full border border-gray-300 bg-white px-3 py-1 text-sm font-medium text-gray-600 transition hover:border-slate-400 hover:text-slate-700"
           >
-            {p === "free" ? "✨ Free" : p === "paid" ? "💰 Paid" : "🙏 Donation"}
+            {p === "free" ? "✨ Free" : p === "paid" ? "💰 Paid" : p === "donation" ? "🙏 Donation" : "❓ TBA"}
           </button>
         ))}
       </div>
@@ -418,11 +418,12 @@ const pastEvents = events
   const modalCalMenu = document.getElementById('modal-cal-menu');
   let _currentEvent  = null;
 
-  const PRICE_LABELS = { free: 'Free', paid: 'Paid', donation: 'Donation' };
+  const PRICE_LABELS = { free: 'Free', paid: 'Paid', donation: 'Donation', unknown: 'Price TBA' };
   const PRICE_COLORS = {
     free: 'bg-emerald-100 text-emerald-700',
     paid: 'bg-blue-100 text-blue-700',
     donation: 'bg-amber-100 text-amber-700',
+    unknown: 'bg-slate-100 text-slate-700',
   };
 
   const TZ_SUFFIX_RE = /(Z|[+-]\d{2}:\d{2})$/;

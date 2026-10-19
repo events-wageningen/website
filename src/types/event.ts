@@ -14,7 +14,7 @@ export type EventCategory =
   | "markets"
   | "food";
 
-export type EventPrice = "free" | "paid" | "donation";
+export type EventPrice = "free" | "paid" | "donation" | "unknown";
 
 export type EventStatus = "scheduled" | "cancelled";
 
